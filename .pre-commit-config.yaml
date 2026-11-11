@@ -1,0 +1,27 @@
+# D:\SFT 门禁 —— 沿用 F:\Spec_Workflow 的 DC 契约校验器（副本，见 ADR-0001 决策 2）
+# 安装：pre-commit install
+# 手动：python scripts/dc_validator.py --check-all
+# 未接：console-gen（上游件硬编码 specwf- 前缀）· blackbox-tests（本仓 tests/ 尚空）
+repos:
+  - repo: local
+    hooks:
+      - id: dc-validator
+        name: DC contract validator (DC1-DC5 + R7)
+        entry: python scripts/dc_validator.py
+        language: system
+        files: ^(?!.*\.arc/).*\.md$
+      - id: m7-stats
+        name: M7 ledger hits block validator
+        entry: python scripts/m7_stats.py
+        language: system
+        files: ^docs/M7_EVIDENCE_LOG\.md$
+      - id: repo-stats
+        name: View-layer enumeration validator (stats block)
+        entry: python scripts/repo_stats.py
+        language: system
+        files: ^(CODE_WIKI\.md|README(\.en)?\.md|\.pre-commit-config\.yaml|docs/|spec/|adr/|scripts/)
+      - id: step-enforce
+        name: Step decision-stream enforcement
+        entry: python scripts/step_enforce.py
+        language: system
+        files: ^(spec/[a-z0-9-]+/(?:[A-Z0-9_]+_)?(?:RESEARCH|DESIGN|IMPLEMENTATION|CHECKLIST(?:_FUNC)?)\.md|tools/spec_runner/sessions/.*\.jsonl|docs/PROGRESS\.md)$
