@@ -21,6 +21,7 @@ upstream: "F:\\Spec_Workflow\\docs\\M7_EVIDENCE_LOG.md"
 | 1 | 2026-11-11 | Spec_Runner 版本判定（本仓 P-001 取证轮） | 同基座自查（Claude Opus 5 既写又审）→ 被 `git log` 实测推翻 | 1（1P2） | 1（版本号——采信 `tools/spec_runner/README.md` 的「外仓冻结为历史存档」声明，未查外仓 git log；实测最后提交 2026-11-10，且 sessions 含 factorv3/finagent/oe/macrodata 四项目活跃事件流） | P-001 取证轮 |
 | 2 | 2026-11-11 | sft-bootstrap CHECKLIST §8.2 发现 2（本仓，ADD Phase 3 自审） | 同基座自查（审计臂自身无第二视角，RULE-4） | 1（1P3） | 1（映射闭合——判 `spec_map.py`「无门禁消费」时只查了 `.pre-commit-config.yaml` 的 files 正则，未查 `console_gen.py` L47 `import spec_map`；证据全真、推理跳步 = 形态 III，删除后经 `import console_gen` 实测恢复） | 本文件 §8.2 更正记录 |
 | 3 | 2026-11-12 | P-004 决策链锚点（本仓，verify-anchor 机检轮） | **机械核查异构于生成端**（verify-anchor 纯脚本，非 LLM 自任验证器） | 7（7P2） | 7（章节号 6 + 行号 1——锚点章节名按文档标题字面凭印象写：`§决策` / `§待办事项` / `§命令面` / `文件头差异节` / `DIS-100` 无定位符 / 裸路径无定位符；另 1 处行号类 = 中文文件名不被锚点正则接受） | P-004 实施轮 |
+| 4 | 2026-11-12 | P-002 RESEARCH.md（本仓，**RULE-5 异构审查轮**） | ★ **异基座**：审查者 `nvidia/nemotron-3-ultra-550b-a55b:free` vs 实现者 A 站 halogen `qwen 3.8 flash next`（跨家族，本仓首个异构臂） | 10（3P1+5P2+2P3）；实现者判定 = 成立 5 / 部分 3 / **不成立 2** | 3（**审查者自身**形态 II：章节号 2——引论文 §3.2/§4.3 细节但 abstract 无从支撑，疑生成填充；数值常量 1——按 16 CU 推 gfx1151 得 11.5 TFLOPS，实为 40 CU，低估约 4×） | docs/reviews/p002-research.adjudication.md |
 
 ## 2. 形态 II 复发分桶（载体 × 字段类型）
 
@@ -31,7 +32,8 @@ upstream: "F:\\Spec_Workflow\\docs\\M7_EVIDENCE_LOG.md"
 | Spec_Runner 版本判定（本仓 P-001 取证轮） | 1 | — | — | — | — | — | — | 1 |
 | sft-bootstrap CHECKLIST 发现 2（本仓，ADD Phase 3 自审） | — | — | — | — | — | — | 1 | 1 |
 | P-004 决策链锚点（本仓，verify-anchor 机检轮） | — | 6 | — | 1 | — | — | — | 7 |
-| 合计 | 1 | 6 | 0 | 1 | 0 | 0 | 1 | 9 |
+| P-002 RESEARCH 异构审查轮（本仓，审查者侧形态 II） | — | 2 | 1 | — | — | — | — | 3 |
+| 合计 | 1 | 8 | 1 | 1 | 0 | 0 | 1 | 12 |
 
 ## 3. 规律锚点
 
@@ -47,23 +49,23 @@ upstream: "F:\\Spec_Workflow\\docs\\M7_EVIDENCE_LOG.md"
 
 ```hits
 {
-  "samples": 3,
+  "samples": 4,
   "form2_by_field": {
     "version": 1,
-    "section": 6,
-    "constant": 0,
+    "section": 8,
+    "constant": 1,
     "line": 1,
     "count": 0,
     "quote": 0,
     "mapping": 1
   },
-  "form2_total": 9,
+  "form2_total": 12,
   "form2_pre_ledger": 0,
-  "form2_from_samples": 9,
+  "form2_from_samples": 12,
   "findings": {
-    "p1": 0,
-    "p2": 8,
-    "p3": 1,
+    "p1": 3,
+    "p2": 13,
+    "p3": 3,
     "unlabeled": 0,
     "cells_nonstandard": 0
   }

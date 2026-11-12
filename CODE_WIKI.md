@@ -58,6 +58,7 @@ D:\SFT\
 | [sft-bootstrap](./spec/sft-bootstrap/) | v1.0 | accepting | P-001 骨架自举四文档 |
 | [distributed-sft](./spec/distributed-sft/) | v1.1 | draft | P-002 分布式微调调研（RESEARCH 已出，DESIGN 待） |
 | [runner-upgrade](./spec/runner-upgrade/) | v1.0 | accepted | P-004 runner v1.11.0 升级 + 前缀修复 + decision 写入器 |
+| [p002-research.adjudication](./docs/reviews/p002-research.adjudication.md) | v1.0 | in-review | P-005 RULE-5 异构审查判定（5 成立/3 部分/2 不成立） |
 | [PROGRESS](./docs/PROGRESS.md) | v1.0 | active | 待办台账 |
 | [M7](./docs/M7_EVIDENCE_LOG.md) | v1.0 | active | 证据账本 |
 | [discoveries](./docs/discoveries/README.md) | v1.0 | active | 发现日志（DIS-100 起） |
@@ -81,10 +82,10 @@ D:\SFT\
     "spec_feature_dirs": 4,
     "adr_files": 1,
     "dev_logs": 2,
-    "scripts": 8,
+    "scripts": 9,
     "templates": 6,
     "hooks": 4,
-    "progress_tasks": 4
+    "progress_tasks": 5
   },
   "view_layer_samples": [],
   "doc_registry": [
@@ -92,7 +93,8 @@ D:\SFT\
     {"label": "PROGRESS", "path": "docs/PROGRESS.md"},
     {"label": "M7", "path": "docs/M7_EVIDENCE_LOG.md"},
     {"label": "discoveries", "path": "docs/discoveries/README.md"},
-    {"label": "m7-hits-block", "path": "spec/m7-hits-block/M7_HITS_DESIGN.md"}
+    {"label": "m7-hits-block", "path": "spec/m7-hits-block/M7_HITS_DESIGN.md"},
+    {"label": "p002-research.adjudication", "path": "docs/reviews/p002-research.adjudication.md"}
   ]
 }
 ```

@@ -1,0 +1,73 @@
+[
+  {
+    "step_id": "research",
+    "step_seq": 1,
+    "category": "feature-design",
+    "decision_maker": "Claude Opus 5（Qwen 基座）",
+    "entities": ["D:\\RPC\\secrets\\openrouter.conf", "scripts/sft_review.py"],
+    "scenario": "用户指出本会话实际基座是 A 站 halogen qwen 3.8 flash next，要求从 D:\\RPC 调取主控站 OpenRouter API 完成 RULE-5 异构审查。此前所有 Review 轮都是同基座自查，RULE-5 从未真正满足。",
+    "reasoning": "先查两件事再动手：① 主控站密钥与模型真值在 secrets/openrouter.conf（ADR-0003 铁律 key 只存 secrets/），默认 model 键已是 nvidia/nemotron-3-ultra-550b-a55b:free，属裸 API 通用档而非 harness-only（后者必 403）；② 审查对象须先过 sensitivity 判定——grep 全文实测仅 1 处通用 Linux 路径，无 IP / 主机名 / 用户名，且本仓已推公开 GitHub，故可出网。另查明 spec_runner v1.11.0 的 NativeHTTPAdapter 只发 Content-Type、无 Authorization，故其 run 命令接不了需 Bearer 的 OpenRouter。",
+    "outcome": "选定审查者 = Nemotron 家族（与 Qwen 实现者异家族）；档位判 sanitized 可出网；确定绕开 runner.run 改为直调 API。",
+    "evidence": [
+      {"grade": "E3", "anchor": "scripts/sft_review.py#L18"},
+      {"grade": "E1", "anchor": "docs/PROGRESS.md#L26"}
+    ]
+  },
+  {
+    "step_id": "design",
+    "step_seq": 2,
+    "category": "feature-design",
+    "decision_maker": "Claude Opus 5",
+    "entities": ["scripts/sft_review.py"],
+    "scenario": "审查任务的形态需定形：审什么维度、输出什么格式、审查者有多大权限。",
+    "reasoning": "维度按框架真实盲区选五项：断言分级恰当性、结论是否被证据支撑、降级是否被掩盖、单源风险、遗漏的替代解释——而非泛问「有没有问题」。权限按 RULE-5 写死为单向：审查者只标记，判定与改写归实现者，因为 answer corruption（自信但错误的批评覆盖正确实现）是多智能体的实证失效模式。输出格式强制「位置/级别/问题/依据」四元，禁止编造（无问题的维度须明写未发现）。",
+    "outcome": "sft_review.py 设计为薄客户端：读 secrets 不写盘、stdlib only、SYSTEM 提示内嵌五维度与四元格式。",
+    "evidence": [
+      {"grade": "E3", "anchor": "scripts/sft_review.py#L28"},
+      {"grade": "E3", "anchor": "scripts/sft_review.py#L10"}
+    ]
+  },
+  {
+    "step_id": "implement",
+    "step_seq": 3,
+    "category": "adr",
+    "decision_maker": "Claude Opus 5",
+    "entities": ["docs/reviews/p002-research.review.md"],
+    "scenario": "执行审查调用并落取证。",
+    "reasoning": "首跑 max_tokens=4000 时 completion 恰好打满 4000，判断为截断而非自然结束，遂以 9000 重跑取完整 10 条 + 总评（completion 6796 未打满，确认完整）。取证文件头写入 reviewer 型号与 usage 读数，使「谁审的、审了多少」可机检而非靠自述。",
+    "outcome": "docs/reviews/p002-research.review.md 落盘：10 条发现 + 总评，usage prompt 8696 / completion 6796 / reasoning 2724，cost 0。",
+    "evidence": [
+      {"grade": "E1", "anchor": "docs/reviews/p002-research.review.md#L1"}
+    ]
+  },
+  {
+    "step_id": "verify",
+    "step_seq": 4,
+    "category": "m7_sample",
+    "decision_maker": "Claude Opus 5（实现者判定，RULE-5 单向权限）",
+    "entities": ["docs/reviews/p002-research.adjudication.md"],
+    "scenario": "审查者给出 10 条发现，须逐条判定而非照单全收——若直接采纳会把错误写进文档。",
+    "reasoning": "判定结果 5 成立 / 3 部分成立 / 2 不成立。成立项全是「文档内部一致性」类（声明了降级却没让降级生效、否决无资格、证据基础被替换），这类错误同基座自查看不见，因为作者会顺着自己的叙事走。不成立项经核验：① 审查者称 2504.15610 是单机多卡，但 abstract 逐字为「two free-tier GPUs (P100 then T4) ... resuming on the second machine」= 跨机接力，其章节号疑为生成填充；② 审查者按 16 CU 推 gfx1151 得 11.5 TFLOPS，而 Radeon 8060S 实为 40 CU（16 CU 属 890M），且其用 vector 而非 matrix 路径，低估约 4 倍。",
+    "outcome": "adjudication.md 落盘：逐条判定 + 元结论（审查者最强在结构性质疑、最弱在具体数值）+ R1-R8 改动清单。",
+    "evidence": [
+      {"grade": "E1", "anchor": "docs/reviews/p002-research.adjudication.md#L18"},
+      {"grade": "E1", "anchor": "docs/reviews/p002-research.adjudication.md#L66"},
+      {"grade": "E4", "anchor": "docs/reviews/p002-research.adjudication.md#L86"}
+    ]
+  },
+  {
+    "step_id": "finalize",
+    "step_seq": 5,
+    "category": "progress_ruling",
+    "decision_maker": "Claude Opus 5",
+    "entities": ["spec/distributed-sft/RESEARCH.md"],
+    "scenario": "成立项须真正落进被审文档，否则审查只是仪式。",
+    "reasoning": "R1-R8 全部落实为 RESEARCH v1.2 的具体改写：L4 由「❌」改「未定」（否决需要资格）、L2 由「✅」改「◐ 有条件可行」（证据是 iperf3 单流而非 RCCL 大包）、DGC 由「✅」改「◐ 带宽对口/移植未验」（不把必要条件当充分条件）、60 TFLOPS 标未溯源（审查者数值也不采信）、二核判据从「再测一次」升级为「换量级+换通道」（系统性偏差不可靠重复测量消除）。版本演进与修订历史同步，不留「已处理」的空头声明。",
+    "outcome": "RESEARCH.md v1.1 → v1.2；P-005 收口；本仓首次满足 RULE-5（异家族审查者 + 单向权限 + 判定留痕）。",
+    "evidence": [
+      {"grade": "E1", "anchor": "docs/reviews/p002-research.adjudication.md#L92"},
+      {"grade": "E1", "anchor": "spec/distributed-sft/RESEARCH.md §4.2"},
+      {"grade": "E1", "anchor": "docs/PROGRESS.md#L26"}
+    ]
+  }
+]

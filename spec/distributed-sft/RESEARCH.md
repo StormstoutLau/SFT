@@ -3,7 +3,7 @@
 ---
 id: distributed-sft-RESEARCH
 type: design
-version: 1.1
+version: 1.2
 status: draft
 date: 2026-11-12
 depends: [sft-bootstrap-RESEARCH]
@@ -57,7 +57,7 @@ upstream: null
 
 | # | 断言 | 级 | 依据 |
 |---|---|---|---|
-| C1 | 7B 全参 DDP（2 机，batch 4096 tokens）：单步计算 ≈ **7 s**，ring all-reduce 需搬 14 GB ≈ **13 s** ⇒ **通信 > 计算，加速比 < 1** | B | 推理链：① 梯度 = 7e9×2 B = 14 GB（依赖 B5 换算 1.1 GB/s）② 计算 = 6×N×tokens ÷ (峰值×MFU)，峰值取 60 TFLOPS bf16、MFU 取 20% ⇒ **峰值与 MFU 两个输入均无本集群实测**，标 E4 |
+| C1 | 7B 全参 DDP（2 机，batch 4096 tokens）：单步计算 ≈ **7 s**，ring all-reduce 需搬 14 GB ≈ **13 s** ⇒ **通信 > 计算，加速比 < 1** | B | 推理链：① 梯度 = 7e9×2 B = 14 GB（依赖 B5 换算 1.1 GB/s）② 计算 = 6×N×tokens ÷ (峰值×MFU)，峰值取 60 TFLOPS bf16 `[外部估计-未溯源]`、MFU 取 20% `[外部估计-未溯源]` ⇒ **两输入均无本集群实测**，标 E4。⚠ 异构审查者曾按「16 CU」推得 11.5 TFLOPS 并判 60 为误用，但 Radeon 8060S 实为 **40 CU**（16 CU 属 890M），其推算亦不成立 ⇒ **两个数都未溯源**，见 `docs/reviews/p002-research.adjudication.md` 不成立 2 |
 | C2 | LoRA（rank 16，可训 ~40 M）梯度 ≈ 80 MB ⇒ all-reduce **0.07 s**，可被计算完全掩盖 | B | 同链，仅梯度量变 ⇒ 结论对 MFU 不敏感（这是它比 C1 稳的原因） |
 | C3 | 三站合计 384 GB UMA，但现役推理已占（gpt-oss-120b / DS V4-Flash 145G）⇒ 训练前须 `unload` | A | E1：`D:\RPC\ops\cluster.py` 命令面 + 本会话 ping 三站全不通（2026-11-11） |
 
@@ -67,10 +67,10 @@ upstream: null
 
 | 瓶颈 | 社区方案 | 级 | 证据 | 对本集群判定 |
 |---|---|---|---|---|
-| 低带宽下梯度同步压垮计算 | **Deep Gradient Compression**：top-k 稀疏化 + 动量修正 + 掩码，压缩比 **270×~600×**，原文明写「enables large-scale distributed training on inexpensive commodity **1Gbps Ethernet**」 | A | arXiv **1712.01887v3**（Lin/Han/Mao/Wang/Dally，发布 2017-12-05，更新 2020-06-23） | ✅ **最对口**。14 GB → 23~52 MB，通信从 13 s 降到亚秒；本集群 1.1 GB/s 优于其 1 Gbps 前提 |
-| 跨机同步本身可省 | **各站独立训 LoRA → 合并**：CAT（拼接式最优加权）优于既有 model-merging **43%**、优于 data-mixing **12%** | A | arXiv **2410.13025v2**（Prabhakar et al，2024-10-16 / upd 2024-12-02） | ✅ **最省事路径**，零新增通信依赖 |
+| 低带宽下梯度同步压垮计算 | **Deep Gradient Compression**：top-k 稀疏化 + 动量修正 + 掩码，压缩比 **270×~600×**，原文明写「enables large-scale distributed training on inexpensive commodity **1Gbps Ethernet**」 | A | arXiv **1712.01887v3**（Lin/Han/Mao/Wang/Dally，发布 2017-12-05，更新 2020-06-23） | ◐ **带宽对口 / 移植未验**：14 GB → 23~52 MB 的量级判断成立，但其实现基于 CUDA/PyTorch hook，**ROCm/RCCL 移植无先例**（§3.4-3）⇒ 不给 ✅（异构审查部分成立 6：混淆「理论带宽匹配」与「工程可落地」） |
+| 跨机同步本身可省 | **各站独立训 LoRA → 合并**：CAT（拼接式最优加权）优于既有 model-merging **43%**、优于 data-mixing **12%** | A | arXiv **2410.13025v2**（Prabhakar et al，2024-10-16 / upd 2024-12-02） | ✅ **最省事路径**，零新增通信依赖。⚠ **适用域待核**：该论文设定是「不同 skill 的 LoRA 合并」，本处用于「不同数据分片各自训练后合并」，**skill 合并 ≠ 数据分片合并**；审查者引的「同分布前置」原文未能核验（abstract 无此句）⇒ 标 `[待核原文]` |
 | 同上，但有理论边界 | 加权平均的误差源于**梯度不匹配**，需 uncertainty-based 加权修正 | A | arXiv **2310.12808v2**（Daheim et al，2023-10-19 / upd 2024-08-23） | ⚠ 提示：三站数据分片若分布差异大，朴素平均会失效 |
-| 跨机断点续训要传全部状态？ | **adapter-only handoff 足够**：41.9 M 参数的 LoRA 在两台 16 GB free-tier GPU 间续跑三 epoch QLoRA，**optimizer/scheduler 状态无需迁移** | A | arXiv **2504.15610v4**（Hosen，2025-04-22 / upd 2026-06-14） | ✅ 直接支撑"分站接力"形态，且用的就是 Unsloth |
+| 跨机断点续训要传全部状态？ | **adapter-only handoff 足够**：41.9 M 参数的 LoRA 在两台 16 GB free-tier GPU 间续跑三 epoch QLoRA，**optimizer/scheduler 状态无需迁移** | A | arXiv **2504.15610v4**（Hosen，2025-04-22 / upd 2026-06-14） | ✅ 直接支撑"分站接力"形态，且用的就是 Unsloth。⚠ 但「optimizer 状态无需迁移」的前提是**同一优化器实例**，跨机续跑的**收敛性等价性论文未证** |
 | 单站容量装不下大模型 | **LoHan**：消费级单卡 + 有限主存微调 100B 级，首个在 RTX 4090 + 256 GB 内存上微调 175B | A | arXiv **2403.06504v2**（Liao et al，2024-03-11 / upd 2024-12-24） | ✅ 本集群 UMA 天然消除其主攻的 CPU↔GPU 搬运开销 |
 | 选哪种并行方法 | **LLMem**：微调前预估显存，单卡误差 ≤1.6%、多卡 ≤3.0% | A | arXiv **2404.10933v1**（Kim et al，2024-04-16） | ✅ 可在 P-003 用作选型前置 |
 | 反向传播内存/算力代价 | **ZO 优化**（MeZO 系）免 BP；块下降 + 梯度稀疏增强 | A | arXiv **2402.11592v3**（Zhang et al，2024-02-18 / upd 2024-05-28） | ⚠ 收敛慢，适合小数据 |
@@ -81,7 +81,7 @@ upstream: null
 ### 3.4 研究空白（含负面发现）
 
 1. ★★★ **gfx1151 上的训练无任何第三方实测**。两个 StackExchange 站点各一次检索**零命中**（见 F3）；Unsloth 官方数据全在 A100/Colab/消费级 N 卡。⇒ 本集群若做训练，**第一个数字必须自己量**，无参照系。
-2. **MoE 微调在 ROCm/RDNA 上的可行性未证**：B9 记 MoE 不宜 4-bit QLoRA，而本集群现役大模型（gpt-oss / Nemotron / DS V4）**全是 MoE** ⇒ 只能走 bf16 LoRA 或全参，而 bf16 在 RDNA3.5 的训练效率未知。
+2. **MoE 微调在 ROCm/RDNA 上的可行性未证**：B9 记 MoE 不宜 4-bit QLoRA `[待 B9 回原文后复核]`，而本集群现役大模型（gpt-oss / Nemotron / DS V4）**全是 MoE** ⇒ 只能走 bf16 LoRA 或全参，而 bf16 在 RDNA3.5 的训练效率未知。
 3. **DGC 未在 ROCm/RCCL 上验证过**：其实现基于 CUDA/PyTorch hook，移植到 gfx1151 无先例。
 4. **三机 RCCL 从未测过**（A 站无 RCCL，B7）。
 5. **跨机吞吐未测**：B3 只有 64 KiB 延迟读数，无大消息量吞吐。
@@ -98,9 +98,9 @@ upstream: null
 |---|---|---|---|
 | L0 | 各站独立训练 + 合并（CAT / 加权平均） | 仅首尾传文件 | ✅ **首选** |
 | L1 | 分站接力（adapter-only handoff） | 仅传 adapter | ✅ 已有一手实证（2504.15610） |
-| L2 | LoRA 跨机 DDP | 每步 ~80 MB | ✅ 可行（C2） |
+| L2 | LoRA 跨机 DDP | 每步 ~80 MB | ◐ **有条件可行**——C2 的 1.1 GB/s 是 **iperf3 单流 TCP** 读数，RCCL 在训练级消息量下的吞吐**未取证**（异构审查成立 3） |
 | L3 | 全参 DDP + 梯度压缩 | 每步 23~52 MB（压缩后） | ⚠ 需移植 DGC |
-| L4 | 全参 DDP 无压缩 | 每步 14 GB | ❌ 加速比 <1（C1，含未验证输入） |
+| L4 | 全参 DDP 无压缩 | 每步 14 GB | **未定**——C1 推算方向为「通信占主导」，但其两个输入均未实测，**不足以否决**（异构审查成立 2：否决即结论，须有资格） |
 | L5 | 张量并行 | 每层 all-reduce | ❌ 推理侧已判 No-Go（B10） |
 
 ### 4.3 研究空白
@@ -164,7 +164,7 @@ upstream: null
 
 - A 站无 RCCL ⇒ 任何跨机方案先要补装（B7）
 - 三站离线 ⇒ 全部实测 blocked
-- 现役模型全是 MoE ⇒ QLoRA 4-bit 路径基本不可用（B9）
+- 现役模型全是 MoE ⇒ QLoRA 4-bit 路径基本不可用（B9）`[待 B9 回原文后复核]`
 - `NCCL_SOCKET_IFNAME` 必须显式设（B4），否则静默挂死
 
 ### 6.3 风险
@@ -179,7 +179,7 @@ upstream: null
 
 | 判据 | 触发条件 | 当前倾向 | 证据等级 |
 |---|---|---|---|
-| **B1/B3/B5 单源待二核**：全部来自 `D:\RPC` 一个仓 | 三站上线后复测 all_reduce | 二核 = 本仓自量，不引用第三方 | E3→E1 |
+| **B1/B3/B5 单源待二核**：全部来自 `D:\RPC` 一个仓 | 三站上线后复测 | 二核 **必须换量级 + 换通道**：消息量 ≥100 MB（非 64 KiB）、走 RCCL 而非 iperf3——系统性偏差不可靠重复测量消除（异构审查成立 4） | E3→E1 |
 | gfx1151 bf16 训练峰值算力与 MFU | 首次训练实测 | 不预设，测完再定 C1 是否成立 | E4 |
 | DGC 在 ROCm/RCCL 上的移植成本 | 决定做 L3 时 | 推迟——L0/L2 未做完不必碰 | E4 |
 | 三站数据分片分布差异是否破坏朴素平均 | 做 L0 合并时 | 用 CAT 而非平均（2410.13025 支持） | E4 |
@@ -220,3 +220,4 @@ upstream: null
 |---|---|---|
 | 2026-11-12 | v1.0 | 初版——P-001 上一轮口头分析正式化 + arXiv 18 源社区方案检索 + F1-F5 出具 |
 | 2026-11-12 | v1.1 | Step 2 Review 就地补：B1/B3/B5 标 `[单源-待二核]`（双源规则）；C1 由结论降入假设区（推理链含未实测输入）；F4 表补 2 条未验证行的显式状态 |
+| 2026-11-12 | v1.2 | **RULE-5 异构审查后修订**（判定见 `docs/reviews/p002-research.adjudication.md`）：R1 B9 下游标待复核 · R2 L4 由❌改未定 · R3 L2 补证据基础 · R4 二核判据升级为换量级+换通道 · R5 算力输入标未溯源 · R6 DGC 不给 ✅ · R7 CAT 补适用域 · R8 handoff 补收敛性未证 |
