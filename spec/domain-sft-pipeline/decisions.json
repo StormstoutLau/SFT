@@ -1,0 +1,74 @@
+[
+  {
+    "step_id": "research",
+    "step_seq": 1,
+    "category": "feature-design",
+    "decision_maker": "Claude Opus 5（Qwen 基座）",
+    "entities": ["spec/domain-sft-pipeline/RESEARCH.md", "D:\\RPC"],
+    "scenario": "用户三问：Strix Halo 有无开箱即用微调框架；L0 能否面向数理/编程/数学细化；有无更个性化的数据获取→微调测试全流程。第三问需要需求侧锚点，不能凭空设计。",
+    "reasoning": "先确认需求侧真实存在——D:\\RPC 的 Auto_Prover 提示词文档证明数学证明编排已在用这集群调 gpt-oss-120b，且有硬约束规范；图结构调研里的 Lean 验证池（2 站 × 16 会话、11.7 ms/tactic，E1）是现成的验证算力。⇒「数理/编程/数学」不是泛泛举例而是既有下游。社区取证 arXiv 8 篇 T1，其中 GRPO matched-compute（2611.13560v1）发布于 2026-11-10，仅两天前。english-search 仍 522、unsloth.ai 域名校验失败 ⇒ 产品横向对比未做一手核验，已如实标 E4。",
+    "outcome": "RESEARCH v1.0：三问分答 + 七段全流程骨架 + 六条社区规律 + 本集群差异化定位。",
+    "evidence": [
+      {"grade": "E1", "anchor": "spec/domain-sft-pipeline/RESEARCH.md §3.1"},
+      {"grade": "E3", "anchor": "spec/domain-sft-pipeline/RESEARCH.md §3.2"},
+      {"grade": "E2", "anchor": "spec/domain-sft-pipeline/RESEARCH.md §5.2"}
+    ]
+  },
+  {
+    "step_id": "design",
+    "step_seq": 2,
+    "category": "feature-design",
+    "decision_maker": "Claude Opus 5",
+    "entities": ["spec/domain-sft-pipeline/RESEARCH.md"],
+    "scenario": "全流程七段要定形本集群主攻哪几段——全做等于没做取舍。",
+    "reasoning": "核心判断是「训练器已商品化，稀缺的是可验证的数据管道」：本集群在 [4] 训练段最弱（无 RDMA、算力未实测），但在 [2] 可验证性过滤与 [6] 等算力评估上有真实差异化位置——数理/代码/证明的答案可机判（单元测试、Lean 编译、符号计算），而验证器不需要训练、是现成算力。目标模型倾向小（L5 说明 sub-billion 可装推理能力），与本集群「内存强算力弱」的画像对路。",
+    "outcome": "七段流程（获取→验证过滤→分片→训练→合并→评估→导出），主攻 [2][6][7]，训练段用 Unsloth 不自造。",
+    "evidence": [
+      {"grade": "E3", "anchor": "spec/domain-sft-pipeline/RESEARCH.md §3.3"},
+      {"grade": "E4", "anchor": "spec/domain-sft-pipeline/RESEARCH.md §4.2"}
+    ]
+  },
+  {
+    "step_id": "implement",
+    "step_seq": 3,
+    "category": "adr",
+    "decision_maker": "Claude Opus 5",
+    "entities": ["spec/domain-sft-pipeline/RESEARCH.md", "docs/reviews/p010-pipeline.review.md"],
+    "scenario": "落档后按 P-009 教训主动做 RULE-5 审查，不等用户质询。",
+    "reasoning": "P-009 的教训是「补做的 pass 抓到了首发 pass 抓不到的东西，而同基座自查连自己有没有漏审都检不全」⇒ 本批把审查放在收口前。用 --mode research 提示词组（断言分级 / 结论支撑 / 降级掩盖 / 单源 / 替代解释）。",
+    "outcome": "RESEARCH v1.0 落盘；审查取证 prompt 6392 / completion 6120 / reasoning 2544，cost 0。",
+    "evidence": [
+      {"grade": "E1", "anchor": "docs/reviews/p010-pipeline.review.md#L1"},
+      {"grade": "E1", "anchor": "spec/domain-sft-pipeline/RESEARCH.md §2.1"}
+    ]
+  },
+  {
+    "step_id": "verify",
+    "step_seq": 4,
+    "category": "m7_sample",
+    "decision_maker": "Nemotron 550B 审查 + Claude Opus 5 判定",
+    "entities": ["docs/reviews/p010-pipeline.adjudication.md"],
+    "scenario": "判定审查者 8 条发现。",
+    "reasoning": "结果 8 成立 / 0 驳回——本仓首次零驳回。最重的三条：① 主结论「Studio 真开箱」把「官方支持 LoRA 内核」（已验）偷换成「Studio 全链路 UI 可用」（未验），且四处声明未验却在结论处标 A 级 ⇒ 这是「声明降级却当结论用」在本仓的**第六次复发**；② 六条规律全靠 abstract 却标 A 级事实；③ GRPO 的 matched-compute 结论被零成本迁移到 SFT+合并，而两者预算量纲不同（SFT 无 rollout/reward），我明知需重定义却照抄了单位。★ 技术含量最高的是发现 7：PaD 的程序执行验证 ≠ Lean 形式化验证——sorry 可通过编译、类型类推断可掩盖逻辑漏洞，它触及 Auto_Prover 场景的要害。",
+    "outcome": "adjudication 落盘含 R1-R8；元结论提出「反复复发的形态应门禁化」并给出检查器方案（含先验红/绿双用例前置）。",
+    "evidence": [
+      {"grade": "E1", "anchor": "docs/reviews/p010-pipeline.adjudication.md §2"},
+      {"grade": "E4", "anchor": "docs/reviews/p010-pipeline.adjudication.md §4"},
+      {"grade": "E1", "anchor": "docs/reviews/p010-pipeline.adjudication.md §5"}
+    ]
+  },
+  {
+    "step_id": "finalize",
+    "step_seq": 5,
+    "category": "progress_ruling",
+    "decision_maker": "Claude Opus 5",
+    "entities": ["spec/domain-sft-pipeline/RESEARCH.md"],
+    "scenario": "成立项落档并明确后续。",
+    "reasoning": "R1-R8 全改：主结论改「Studio UI 未验 ⇒ 主路径库脚本」并与 B-1 倾向对齐（原文 B-1 已写「库路径优先」而主结论未同步，正是审查抓的点）；六条规律 A→B；等算力「思想可借、单位须重定义」且 B-3 由倾向升为前置任务；Lean 池「★强」降「◐潜力未验」；模型规模标无实测依据；「必须按域切」改三候选并列（审查指出 L1 只证混合有干扰、未证按域切能消除，我预先排除了混合可能性、收窄了设计空间）。",
+    "outcome": "RESEARCH v1.0→v1.1；B-5 关闭（审查已做）；新增空白 4/5（Lean 编译通过≠语义正确、离线吞吐无基准）；P-010 done。",
+    "evidence": [
+      {"grade": "E1", "anchor": "spec/domain-sft-pipeline/RESEARCH.md §4.3"},
+      {"grade": "E1", "anchor": "docs/PROGRESS.md#L31"}
+    ]
+  }
+]
