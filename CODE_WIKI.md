@@ -59,10 +59,11 @@ D:\SFT\
 | [sft-bootstrap](./spec/sft-bootstrap/) | v1.0 | accepting | P-001 骨架自举四文档 |
 
 | [runner-upgrade](./spec/runner-upgrade/) | v1.0 | accepted | P-004 runner v1.11.0 升级 + 前缀修复 + decision 写入器 |
-| [a1-smoke-test](./spec/a1-smoke-test/) | v1.0 | draft | P-008 A-1 冒烟测试（六闸门 G0-G5） |
+| [a1-smoke-test](./spec/a1-smoke-test/) | v1.1 | draft | P-008 A-1 冒烟测试（六闸门 G0-G5），P-009 补审后 v1.1 |
 | [distributed-sft](./spec/distributed-sft/) | v1.3 | draft | P-002 调研 v1.3 + P-006 L0 设计 v1.3（均经 RULE-5 修订） |
 | [p002-research.adjudication](./docs/reviews/p002-research.adjudication.md) | v1.0 | in-review | P-005 RULE-5 异构审查判定（5 成立/3 部分/2 不成立） |
 | [p006-design.adjudication](./docs/reviews/p006-design.adjudication.md) | v1.0 | in-review | P-006 DESIGN 的 RULE-5 独立 pass 判定（6 成立/2 部分/0 不成立） |
+| [p008-smoke.adjudication](./docs/reviews/p008-smoke.adjudication.md) | v1.0 | in-review | P-009 A-1 冒烟设计的 RULE-5 补审判定（8 成立/2 部分/0 不成立） |
 | [PROGRESS](./docs/PROGRESS.md) | v1.0 | active | 待办台账 |
 | [M7](./docs/M7_EVIDENCE_LOG.md) | v1.0 | active | 证据账本 |
 | [discoveries](./docs/discoveries/README.md) | v1.0 | active | 发现日志（DIS-100 起） |
@@ -89,7 +90,7 @@ D:\SFT\
     "scripts": 9,
     "templates": 6,
     "hooks": 4,
-    "progress_tasks": 8
+    "progress_tasks": 9
   },
   "view_layer_samples": [],
   "doc_registry": [
@@ -99,7 +100,8 @@ D:\SFT\
     {"label": "discoveries", "path": "docs/discoveries/README.md"},
     {"label": "m7-hits-block", "path": "spec/m7-hits-block/M7_HITS_DESIGN.md"},
     {"label": "p002-research.adjudication", "path": "docs/reviews/p002-research.adjudication.md"},
-    {"label": "p006-design.adjudication", "path": "docs/reviews/p006-design.adjudication.md"}
+    {"label": "p006-design.adjudication", "path": "docs/reviews/p006-design.adjudication.md"},
+    {"label": "p008-smoke.adjudication", "path": "docs/reviews/p008-smoke.adjudication.md"}
   ]
 }
 ```

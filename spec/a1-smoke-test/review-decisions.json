@@ -1,0 +1,70 @@
+[
+  {
+    "step_id": "research",
+    "step_seq": 1,
+    "category": "progress_ruling",
+    "decision_maker": "用户质询 + Claude Opus 5 自查",
+    "entities": ["spec/a1-smoke-test/DESIGN.md"],
+    "scenario": "用户问「设计是否完成异构复审」。P-008 收口时我在 decision 链 verify 步标过「本批未做 RULE-5」，但把 done 放行了，而 P-006 的元结论明写「后续对 DESIGN 类文档优先用异构审查，性价比高于 RESEARCH」。",
+    "reasoning": "答案是没有，且这不是疏忽而是**言行不一**：上一批刚写下原则，这一批出了个 DESIGN 却没执行。更值得记的是自查的局限——P-008 收口时我确实自查过（decision 链 verify 步），如实标了「未做 RULE-5」，却没发现 I-3 不可判这个更重的问题。⇒ 同基座自查连「自己有没有漏审」都检不全，这正是 RULE-1 与 RULE-5 各自独立存在的理由。",
+    "outcome": "确认漏审成立，立即补做而非辩解。",
+    "evidence": [
+      {"grade": "E1", "anchor": "docs/reviews/p008-smoke.adjudication.md §1"},
+      {"grade": "E4", "anchor": "docs/reviews/p008-smoke.adjudication.md §5"}
+    ]
+  },
+  {
+    "step_id": "design",
+    "step_seq": 2,
+    "category": "feature-design",
+    "decision_maker": "Claude Opus 5",
+    "entities": ["scripts/sft_review.py"],
+    "scenario": "补审需选审查对象与维度。",
+    "reasoning": "审 DESIGN 而非 RESEARCH——前者是能否决 L0 的判据设计，判据可判性是核心风险；后者是取证陈述，已由 U1-U13 逐字引文支撑。复用 P-006 建的 --mode design 提示词组（决策三件套 / 未验证前提 / 不变式可判性 / 接口可实现性 / 归因扭曲 / 职责越界），不为本批另造维度。",
+    "outcome": "审查任务定形，对象 spec/a1-smoke-test/DESIGN.md。",
+    "evidence": [
+      {"grade": "E3", "anchor": "scripts/sft_review.py#L31"}
+    ]
+  },
+  {
+    "step_id": "implement",
+    "step_seq": 3,
+    "category": "adr",
+    "decision_maker": "Nemotron 550B（审查者）",
+    "entities": ["docs/reviews/p008-smoke.review.md"],
+    "scenario": "执行审查调用。",
+    "reasoning": "completion 3220 未打满 9000，确认非截断。reasoning tokens 仅 288（P-006 为 5330），但发现质量未降——不可据此推断「想越少审越准」，本批被审文档更短（6362 vs 7979 字符）是混杂因素，已在判定中如实标注该不可分离性。",
+    "outcome": "10 条发现 + 总评落盘，usage prompt 5164 / completion 3220 / reasoning 288，cost 0。",
+    "evidence": [
+      {"grade": "E1", "anchor": "docs/reviews/p008-smoke.review.md#L1"}
+    ]
+  },
+  {
+    "step_id": "verify",
+    "step_seq": 4,
+    "category": "m7_sample",
+    "decision_maker": "Claude Opus 5 判定（RULE-5 单向权限）",
+    "entities": ["docs/reviews/p008-smoke.adjudication.md"],
+    "scenario": "逐条判定审查者发现。",
+    "reasoning": "判定 8 成立 / 2 部分 / 0 不成立。最重的是成立 1：G1.5/G3.2/G5 三处容许带全标「不预设、首跑采集、E5 禁入判据」，等于把「有没有判据」推给实施阶段，使 I-3「任何通过须含数值正确性证据」在最关键处不可判，六闸门退化为「没崩即过」。★ 这是本仓第四次同类结构错误，形态最新——前三次是声明降级未传播、否决无资格、证据被替换，这次是**用「诚实标注未验」这个正确姿态回避「必须给可执行判据」这个义务**。解法不是拍脑门补个数，而是自校准对照：以 CPU fp16 vs fp32 的实测差 δ_ref 为标尺，判据改 ≤k·δ_ref（bf16 与 fp16 尾数同为 8 bit，量级可比），阈值来源变实测，E5 矛盾解除。部分成立 9 驳回审查者的多卡假设（本集群每站单颗 8060S，--device-id 无意义）。",
+    "outcome": "adjudication 落盘含 R1-R10；退出码消歧（G0 失败恒返 1）、G4 拆本地必过/推理侧可 N/A、A 站数值失败须 B 站复跑归因、--venv 必填、结构判据替代日志判据。",
+    "evidence": [
+      {"grade": "E1", "anchor": "docs/reviews/p008-smoke.adjudication.md §2"},
+      {"grade": "E4", "anchor": "docs/reviews/p008-smoke.adjudication.md §5"}
+    ]
+  },
+  {
+    "step_id": "finalize",
+    "step_seq": 5,
+    "category": "progress_ruling",
+    "decision_maker": "Claude Opus 5",
+    "entities": ["spec/a1-smoke-test/DESIGN.md", "docs/PROGRESS.md"],
+    "scenario": "修订落档并纠正台账语义。",
+    "reasoning": "DESIGN 升 v1.1 并补 §10.5 Step 4 Review 节（原档按内容重排章节，把模板的 Review 节漏了）。P-008 的 done 加限定「当时仅覆盖设计已写出」，不静默改写历史；P-009 独立登记，使补审这件事在台账可见。",
+    "outcome": "DESIGN v1.0→v1.1；§10.5 补 Step 4 记录；A-11 由 E5 升 E4；P-008 标注限定；P-009 done；四道门禁 Passed。",
+    "evidence": [
+      {"grade": "E1", "anchor": "spec/a1-smoke-test/DESIGN.md §10.5"},
+      {"grade": "E1", "anchor": "docs/PROGRESS.md#L30"}
+    ]
+  }
+]
