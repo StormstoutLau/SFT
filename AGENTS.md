@@ -50,8 +50,9 @@ python scripts/spec_runner_adapter.py probe  # runner 接入自检（事件入�
 
 | 缺口 | 影响 | 出处 |
 |---|---|---|
-| `F:\Spec_Runner` 停在 **v1.0.0**，无 `decision` 事件 / 无 `verify-anchor` / 无 `step-gate` | RULE-1 补要求的独立 pass 取证输入两项**无法出具** ⇒ 本仓每个 Review 轮须标「v1.0.0 取证降级」，不得谎称满足 RULE-1 补 | E3：`F:\Spec_Runner\spec_runner.py` 命令面 grep 零命中；对照 `F:\Spec_Workflow\tools\spec_runner` v1.11.0 |
-| `console_gen.py` / `blackbox-tests` 未接入 pre-commit | 本仓 hooks = 4 而非上游 6 | `console_gen` 硬编码 `specwf-p*.jsonl` 前缀 |
+| ~~runner v1.0.0 能力缺口~~ **已消**（P-004 升级至 v1.11.0 并复制进本仓） | `decision` / `verify-anchor` / `step-gate` 现可用 ⇒ RULE-1 补的取证**可完整出具**；本仓不再标「v1.0.0 取证降级」 | E1：`tools/spec_runner/spec_runner.py --version` = 1.11.0 |
+| **锚点语法不接受非 ASCII 文件名** | 中文命名的文档（如本仓 ADR）**无法作为 evidence 锚点被机检**，决策链须改指 ASCII 名文件 | E3：`spec_runner.py` L391/L395 字符类；DIS-102 |
+| `console_gen` / `blackbox-tests` 未接 | 本仓 hooks = 4 而非上游 6；`console_gen` 硬编码 `specwf-p*.jsonl` 前缀（6 处），改前方可接 | DIS-101 同族 |
 | 三站离线 | 一切训练相关实测标 `blocked`，不预写结论 | E1：2026-11-11 ping 全不通 |
 
 ## 权威源指针

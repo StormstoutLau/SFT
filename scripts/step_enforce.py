@@ -45,7 +45,7 @@ FEATURE_RE = re.compile(
     r"^spec/([a-z0-9-]+)/(?:[A-Z0-9_]+_)?"
     r"(?:RESEARCH|DESIGN|IMPLEMENTATION|CHECKLIST(?:_FUNC)?)\.md$")
 SESSION_RE = re.compile(
-    r"^tools/spec_runner/sessions/(specwf-p(\d{3})-[a-z0-9-]+)\.jsonl$")
+    r"^tools/spec_runner/sessions/(sft-p(\d{3})-[a-z0-9-]+)\.jsonl$")
 BRANCH_RE = re.compile(r"(?:^|[/_-])p(\d{3})(?:$|[/_-])", re.I)
 STEP_SEQUENCE = ("research", "design", "implement", "verify", "finalize")
 BATCH_BINDING_MIN_P = 129
@@ -125,8 +125,10 @@ def _pid_num(pid: str) -> int:
 
 
 def _sessions_for_pid(pid: str) -> list[str]:
+    # 本仓差异（I-4 登记，见 DIS-101）：上游硬编码 `specwf-` 前缀，本仓 session 前缀为 `sft-`。
+    # 不改则任何 P 行恒报「无 session」——与"真的没建 session"两种状态读起来完全一样。
     key = pid.lower().replace("-", "")
-    return sorted(p.stem for p in SESSIONS.glob(f"specwf-{key}-*.jsonl"))
+    return sorted(p.stem for p in SESSIONS.glob(f"sft-{key}-*.jsonl"))
 
 
 # ---------------------------------------------------------------- U-10 C：内容 digest 绑定（P-137）

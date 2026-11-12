@@ -32,7 +32,7 @@ from pathlib import Path
 # >>> 配置区 <<<
 # ============================================================
 
-RUNNER = r"F:\Spec_Runner\spec_runner.py"
+RUNNER = r"D:\SFT\tools\spec_runner\spec_runner.py"
 PREFIX = "sft"
 CWD = r"D:\SFT"
 SESSIONS = r"D:\SFT\tools\spec_runner\sessions"

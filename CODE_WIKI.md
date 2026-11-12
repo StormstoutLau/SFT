@@ -33,6 +33,8 @@ D:\SFT\
 ├── spec/
     ├── m7-hits-block/     M7 hits 块本仓差异说明
     ├── sft-bootstrap/     P-001 四文档管道
+    ├── distributed-sft/   P-002 分布式微调调研
+    ├── runner-upgrade/    P-004 runner 升级与 decision 写入器
     └── templates/         四文档模板（副本）
 ├── tests/
 └── tools/spec_runner/sessions/   Spec_Runner 事件流（runner 本体在 F:\Spec_Runner）
@@ -44,7 +46,8 @@ D:\SFT\
 |---|---|---|
 | 算力前置 | 三站 2026-11-11 全部离线（ping 不通），训练实测须等上线 | E1 |
 | 互联硬顶 | USB4 实测 9.0~9.46 Gb/s ≈ 1.1 GB/s，无 RDMA | E2（`D:\RPC` 留档） |
-| runner 能力缺口 | `F:\Spec_Runner` v1.0.0 无 `decision` / `verify-anchor` ⇒ RULE-1 补的两项取证在本仓**标降级出具** | E3 |
+| runner 已升级 | 本仓 `tools/spec_runner/` = **v1.11.0**（P-004），`decision`/`step-gate`/`verify-anchor` 可用 ⇒ RULE-1 补取证**可完整出具** | E1：`--version` 读数 |
+| 锚点语法边界 | `verify-anchor` 不接受非 ASCII 文件名 ⇒ 中文命名文档无法作机检锚点 | E3：`spec_runner.py` L391/L395；DIS-102 |
 
 ## 9. 文档索引
 
@@ -53,6 +56,8 @@ D:\SFT\
 | [ADR-0001](./adr/ADR-0001-规范载体为指针而非副本.md) | v1.0 | accepted | 规范载体三分：宪法指针 / 可执行件副本 / 差异就地登记 |
 | [m7-hits-block](./spec/m7-hits-block/) | v1.0 | draft | M7 hits 块本仓差异说明 |
 | [sft-bootstrap](./spec/sft-bootstrap/) | v1.0 | accepting | P-001 骨架自举四文档 |
+| [distributed-sft](./spec/distributed-sft/) | v1.1 | draft | P-002 分布式微调调研（RESEARCH 已出，DESIGN 待） |
+| [runner-upgrade](./spec/runner-upgrade/) | v1.0 | accepted | P-004 runner v1.11.0 升级 + 前缀修复 + decision 写入器 |
 | [PROGRESS](./docs/PROGRESS.md) | v1.0 | active | 待办台账 |
 | [M7](./docs/M7_EVIDENCE_LOG.md) | v1.0 | active | 证据账本 |
 | [discoveries](./docs/discoveries/README.md) | v1.0 | active | 发现日志（DIS-100 起） |
@@ -73,13 +78,13 @@ D:\SFT\
     {"id": "PT-6B", "regex": "架构决策记录（([一二三四五六七八九十\\d]+)份", "truth": "fs.adr_files", "scope": ["CODE_WIKI.md"]}
   ],
   "declared": {
-    "spec_feature_dirs": 2,
+    "spec_feature_dirs": 4,
     "adr_files": 1,
-    "dev_logs": 1,
-    "scripts": 7,
+    "dev_logs": 2,
+    "scripts": 8,
     "templates": 6,
     "hooks": 4,
-    "progress_tasks": 3
+    "progress_tasks": 4
   },
   "view_layer_samples": [],
   "doc_registry": [
