@@ -3,7 +3,7 @@
 ---
 id: distributed-sft-RESEARCH
 type: design
-version: 1.2
+version: 1.3
 status: draft
 date: 2026-11-12
 depends: [sft-bootstrap-RESEARCH]
@@ -49,7 +49,7 @@ upstream: null
 | B6 | **无 RDMA**：三站 `/sys/class/infiniband/` 全空，RCCL 报 `NET/IB : No device found` | A | E3：RCCL 文档 L216-222@`639370515b50` |
 | B7 | **A 站未装 RCCL** ⇒ 三站不同构，当前只能 B↔C 两机 | A | E3：同上 L130-136@`639370515b50` |
 | B8 | 内存带宽 ~256 GB/s LPDDR5X；同站叠并发被带宽顶起 ~2.8× | A | E3：`spec/d6-agent-standard/unsloth-a-station.md` L374@`e57db3e436c1` |
-| B9 | Unsloth 官方口径：gpt-oss-120b **QLoRA ~65 GB VRAM**；MoE **不推荐 4-bit QLoRA**（BitsandBytes 不支持）→ 用 bf16 LoRA 或全量 | A | E3：同上 L118-130@`e57db3e436c1`（**转述 unsloth.ai，未回原文**，见 F3） |
+| B9 | Unsloth 官方口径：gpt-oss-120b **QLoRA ~65 GB VRAM**；MoE 不推荐 4-bit QLoRA（称 BitsandBytes 不支持）→ 用 bf16 LoRA 或全量 ⚠ **v1.3 部分更正**：回原文后，「MoE 不支持 4-bit」仅对 **unmodified bnb** 成立——Unsloth 走 **expert→linear 转换**绕开该限制，但「AMD × MoE × 4-bit」组合官方**未确认** | A→**部分回原文** | E3 转述部分同左；更正依据 = `spec/a1-smoke-test/RESEARCH.md` U10/U11/U12（T1） |
 | B10 | llama.cpp **不消费 RCCL**（自研 RPC + 层切分）；`-sm tensor` 在本链路 No-Go | A | E3：RCCL 文档 L52@`639370515b50` + `README.md` 一屏节 |
 | B11 | 本仓明写「训练 / DDP / 微调 → **本仓无此负载**」 | A | E3：RCCL 文档 L71@`639370515b50` |
 
@@ -80,7 +80,7 @@ upstream: null
 
 ### 3.4 研究空白（含负面发现）
 
-1. ★★★ **gfx1151 上的训练无任何第三方实测**。两个 StackExchange 站点各一次检索**零命中**（见 F3）；Unsloth 官方数据全在 A100/Colab/消费级 N 卡。⇒ 本集群若做训练，**第一个数字必须自己量**，无参照系。
+1. ★★★ **gfx1151 训练无第三方实测**——但本条原表述「Unsloth 官方数据全在 A100/Colab/消费级 N 卡」**已被推翻**（v1.3 更正）：官方文档明列 gfx1151 支持 LoRA 训练（见 `spec/a1-smoke-test/RESEARCH.md` U1）。⇒ 准确说法是「**官方有 T1 声明，但无第三方独立实测**」：本集群第一个数字仍须自己量（复现官方声明），但先验从「完全未知」升为「官方称可、待本地证」。⚠ 该错误源于 P-002 当时只读 `D:\RPC` 二手记录未回原文，已入 M7 样本 6。
 2. **MoE 微调在 ROCm/RDNA 上的可行性未证**：B9 记 MoE 不宜 4-bit QLoRA `[待 B9 回原文后复核]`，而本集群现役大模型（gpt-oss / Nemotron / DS V4）**全是 MoE** ⇒ 只能走 bf16 LoRA 或全参，而 bf16 在 RDNA3.5 的训练效率未知。
 3. **DGC 未在 ROCm/RCCL 上验证过**：其实现基于 CUDA/PyTorch hook，移植到 gfx1151 无先例。
 4. **三机 RCCL 从未测过**（A 站无 RCCL，B7）。
@@ -220,4 +220,5 @@ upstream: null
 |---|---|---|
 | 2026-11-12 | v1.0 | 初版——P-001 上一轮口头分析正式化 + arXiv 18 源社区方案检索 + F1-F5 出具 |
 | 2026-11-12 | v1.1 | Step 2 Review 就地补：B1/B3/B5 标 `[单源-待二核]`（双源规则）；C1 由结论降入假设区（推理链含未实测输入）；F4 表补 2 条未验证行的显式状态 |
+| 2026-11-12 | v1.3 | **回原文更正（P-008 取证）**：§3.4-1「官方数据全在 A100/Colab」被推翻（Unsloth 官方明列 gfx1151 支持 LoRA 训练）⇒ 改为「有 T1 声明、无第三方实测」；B9 的「MoE 不支持 4-bit」限定为仅对 unmodified bnb 成立，Unsloth 走 expert→linear 转换，但 AMD×MoE×4-bit 组合官方未确认。依据 `spec/a1-smoke-test/RESEARCH.md` U1/U10/U11/U12。M7 样本 6 入账。
 | 2026-11-12 | v1.2 | **RULE-5 异构审查后修订**（判定见 `docs/reviews/p002-research.adjudication.md`）：R1 B9 下游标待复核 · R2 L4 由❌改未定 · R3 L2 补证据基础 · R4 二核判据升级为换量级+换通道 · R5 算力输入标未溯源 · R6 DGC 不给 ✅ · R7 CAT 补适用域 · R8 handoff 补收敛性未证 |

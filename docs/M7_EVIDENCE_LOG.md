@@ -23,6 +23,7 @@ upstream: "F:\\Spec_Workflow\\docs\\M7_EVIDENCE_LOG.md"
 | 3 | 2026-11-12 | P-004 决策链锚点（本仓，verify-anchor 机检轮） | **机械核查异构于生成端**（verify-anchor 纯脚本，非 LLM 自任验证器） | 7（7P2） | 7（章节号 6 + 行号 1——锚点章节名按文档标题字面凭印象写：`§决策` / `§待办事项` / `§命令面` / `文件头差异节` / `DIS-100` 无定位符 / 裸路径无定位符；另 1 处行号类 = 中文文件名不被锚点正则接受） | P-004 实施轮 |
 | 4 | 2026-11-12 | P-002 RESEARCH.md（本仓，**RULE-5 异构审查轮**） | ★ **异基座**：审查者 `nvidia/nemotron-3-ultra-550b-a55b:free` vs 实现者 A 站 halogen `qwen 3.8 flash next`（跨家族，本仓首个异构臂） | 10（3P1+5P2+2P3）；实现者判定 = 成立 5 / 部分 3 / **不成立 2** | 3（**审查者自身**形态 II：章节号 2——引论文 §3.2/§4.3 细节但 abstract 无从支撑，疑生成填充；数值常量 1——按 16 CU 推 gfx1151 得 11.5 TFLOPS，实为 40 CU，低估约 4×） | docs/reviews/p002-research.adjudication.md |
 | 5 | 2026-11-12 | P-006 DESIGN.md（本仓，**RULE-5 异构审查轮 2**） | 异基座 `nvidia/nemotron-3-ultra-550b-a55b:free`（`--mode design`）vs 实现者 halogen `qwen 3.8 flash next` | 8（2P1+4P2+2P3）；判定 = 成立 6 / 部分 2 / **不成立 0** | 0（★ 与轮 1 对照：本轮审查者零事实错误——疑因提示词新增「不要凭印象给硬件规格」约束，亦可能因设计文档多为内部一致性命题，**两因不可分离**） | docs/reviews/p006-design.adjudication.md |
+| 6 | 2026-11-12 | P-002 RESEARCH §3.4-1（本仓，P-008 回原文复核轮） | 同基座自查（WebFetch 通道恢复后回官方文档，非独立审查臂） | 1（1P2） | 1（转述引文——采信 `D:\RPC` 二手记录「加速数据多在 colab/A100 测得」，未回原文即加强写成「Unsloth 官方数据全在 A100/Colab/N 卡」并据此判「无参照系」；实测官方文档明列 gfx1151 支持 LoRA 训练 ⇒ 二手转述被当一手结论用，且推理跳了一步） | spec/a1-smoke-test/RESEARCH.md §3.3 |
 
 ## 2. 形态 II 复发分桶（载体 × 字段类型）
 
@@ -34,7 +35,8 @@ upstream: "F:\\Spec_Workflow\\docs\\M7_EVIDENCE_LOG.md"
 | sft-bootstrap CHECKLIST 发现 2（本仓，ADD Phase 3 自审） | — | — | — | — | — | — | 1 | 1 |
 | P-004 决策链锚点（本仓，verify-anchor 机检轮） | — | 6 | — | 1 | — | — | — | 7 |
 | P-002 RESEARCH 异构审查轮（本仓，审查者侧形态 II） | — | 2 | 1 | — | — | — | — | 3 |
-| 合计 | 1 | 8 | 1 | 1 | 0 | 0 | 1 | 12 |
+| P-002 §3.4-1 回原文复核（本仓，转述当一手） | — | — | — | — | — | 1 | — | 1 |
+| 合计 | 1 | 8 | 1 | 1 | 0 | 1 | 1 | 13 |
 
 ## 3. 规律锚点
 
@@ -50,22 +52,22 @@ upstream: "F:\\Spec_Workflow\\docs\\M7_EVIDENCE_LOG.md"
 
 ```hits
 {
-  "samples": 5,
+  "samples": 6,
   "form2_by_field": {
     "version": 1,
     "section": 8,
     "constant": 1,
     "line": 1,
     "count": 0,
-    "quote": 0,
+    "quote": 1,
     "mapping": 1
   },
-  "form2_total": 12,
+  "form2_total": 13,
   "form2_pre_ledger": 0,
-  "form2_from_samples": 12,
+  "form2_from_samples": 13,
   "findings": {
     "p1": 5,
-    "p2": 17,
+    "p2": 18,
     "p3": 5,
     "unlabeled": 0,
     "cells_nonstandard": 0

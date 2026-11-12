@@ -34,6 +34,7 @@ D:\SFT\
     ├── m7-hits-block/     M7 hits 块本仓差异说明
     ├── sft-bootstrap/     P-001 四文档管道
     ├── distributed-sft/   P-002 分布式微调调研
+    ├── a1-smoke-test/     P-008 A-1 冒烟测试设计
     ├── runner-upgrade/    P-004 runner 升级与 decision 写入器
     └── templates/         四文档模板（副本）
 ├── tests/
@@ -56,8 +57,10 @@ D:\SFT\
 | [ADR-0001](./adr/ADR-0001-规范载体为指针而非副本.md) | v1.0 | accepted | 规范载体三分：宪法指针 / 可执行件副本 / 差异就地登记 |
 | [m7-hits-block](./spec/m7-hits-block/) | v1.0 | draft | M7 hits 块本仓差异说明 |
 | [sft-bootstrap](./spec/sft-bootstrap/) | v1.0 | accepting | P-001 骨架自举四文档 |
-| [distributed-sft](./spec/distributed-sft/) | v1.2 | draft | P-002 调研 RESEARCH v1.2 + P-006 L0 设计 DESIGN v1.1（均经 RULE-5 异构审查修订） |
+
 | [runner-upgrade](./spec/runner-upgrade/) | v1.0 | accepted | P-004 runner v1.11.0 升级 + 前缀修复 + decision 写入器 |
+| [a1-smoke-test](./spec/a1-smoke-test/) | v1.0 | draft | P-008 A-1 冒烟测试（六闸门 G0-G5） |
+| [distributed-sft](./spec/distributed-sft/) | v1.3 | draft | P-002 调研 v1.3 + P-006 L0 设计 v1.3（均经 RULE-5 修订） |
 | [p002-research.adjudication](./docs/reviews/p002-research.adjudication.md) | v1.0 | in-review | P-005 RULE-5 异构审查判定（5 成立/3 部分/2 不成立） |
 | [p006-design.adjudication](./docs/reviews/p006-design.adjudication.md) | v1.0 | in-review | P-006 DESIGN 的 RULE-5 独立 pass 判定（6 成立/2 部分/0 不成立） |
 | [PROGRESS](./docs/PROGRESS.md) | v1.0 | active | 待办台账 |
@@ -80,13 +83,13 @@ D:\SFT\
     {"id": "PT-6B", "regex": "架构决策记录（([一二三四五六七八九十\\d]+)份", "truth": "fs.adr_files", "scope": ["CODE_WIKI.md"]}
   ],
   "declared": {
-    "spec_feature_dirs": 4,
+    "spec_feature_dirs": 5,
     "adr_files": 1,
     "dev_logs": 3,
     "scripts": 9,
     "templates": 6,
     "hooks": 4,
-    "progress_tasks": 7
+    "progress_tasks": 8
   },
   "view_layer_samples": [],
   "doc_registry": [
