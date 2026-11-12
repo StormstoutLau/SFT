@@ -42,6 +42,7 @@ GATES = {
     "dc-validator": "python scripts/dc_validator.py --check-all",
     "m7-stats": "python scripts/m7_stats.py",
     "repo-stats": "python scripts/repo_stats.py",
+    "degradation-gate": "python scripts/degradation_gate.py",
     "step-enforce": "python scripts/step_enforce.py",
 }
 
