@@ -86,7 +86,7 @@ D:\SFT\
     "scripts": 9,
     "templates": 6,
     "hooks": 4,
-    "progress_tasks": 6
+    "progress_tasks": 7
   },
   "view_layer_samples": [],
   "doc_registry": [
