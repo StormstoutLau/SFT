@@ -1,7 +1,7 @@
 # CODE_WIKI —— D:\SFT 知识库索引
 
 > **仓库性质**: 分布式微调工作区（算力底座 = `D:\RPC` 三机集群）
-> **规范权威源**: `F:\Spec_Workflow\SPEC_PROCESS.md`（本仓以指针沿用，见 [ADR-0001](./adr/ADR-0001-规范载体为指针而非副本.md)）
+> **规范权威源**: `F:\Spec_Workflow\SPEC_PROCESS.md`（本仓以指针沿用，见 [ADR-0001](./adr/ADR-0001-spec-carrier-pointer-not-copy.md)）
 > **建立**: 2026-11-11
 
 ## 1. 项目概览
@@ -31,6 +31,7 @@ D:\SFT\
 │   └── dev-log/           开发日志
 ├── scripts/               校验器（副本，见 ADR-0001 决策 2）
 ├── spec/
+    ├── degradation-gate/  P-011 降级传播门禁
     ├── m7-hits-block/     M7 hits 块本仓差异说明
     ├── sft-bootstrap/     P-001 四文档管道
     ├── distributed-sft/   P-002 分布式微调调研
@@ -55,13 +56,15 @@ D:\SFT\
 
 | 文档 | 版本 | 状态 | 说明 |
 |---|---|---|---|
-| [ADR-0001](./adr/ADR-0001-规范载体为指针而非副本.md) | v1.0 | accepted | 规范载体三分：宪法指针 / 可执行件副本 / 差异就地登记 |
+| [ADR-0001](./adr/ADR-0001-spec-carrier-pointer-not-copy.md) | v1.0 | accepted | 规范载体三分：宪法指针 / 可执行件副本 / 差异就地登记 |
+| [ADR-0002](./adr/ADR-0002-degradation-gate.md) | v1.0 | accepted | 新增第 5 道门禁：降级传播检查（治六次复发） |
 | [m7-hits-block](./spec/m7-hits-block/) | v1.0 | draft | M7 hits 块本仓差异说明 |
 | [sft-bootstrap](./spec/sft-bootstrap/) | v1.0 | accepting | P-001 骨架自举四文档 |
 
 | [runner-upgrade](./spec/runner-upgrade/) | v1.0 | accepted | P-004 runner v1.11.0 升级 + 前缀修复 + decision 写入器 |
 | [a1-smoke-test](./spec/a1-smoke-test/) | v1.1 | draft | P-008 A-1 冒烟测试（六闸门 G0-G5），P-009 补审后 v1.1 |
 | [domain-sft-pipeline](./spec/domain-sft-pipeline/) | v1.1 | draft | P-010 数理/编程/证明全流程分析（七段 + 八条规律），经 RULE-5 主动 pass |
+| [degradation-gate](./spec/degradation-gate/) | v1.0 | draft | P-011 降级传播门禁（ADR-0002 + 检查器决策链） |
 | [distributed-sft](./spec/distributed-sft/) | v1.3 | draft | P-002 调研 v1.3 + P-006 L0 设计 v1.3（均经 RULE-5 修订） |
 | [p002-research.adjudication](./docs/reviews/p002-research.adjudication.md) | v1.0 | in-review | P-005 RULE-5 异构审查判定（5 成立/3 部分/2 不成立） |
 | [p006-design.adjudication](./docs/reviews/p006-design.adjudication.md) | v1.0 | in-review | P-006 DESIGN 的 RULE-5 独立 pass 判定（6 成立/2 部分/0 不成立） |
@@ -87,17 +90,18 @@ D:\SFT\
     {"id": "PT-6B", "regex": "架构决策记录（([一二三四五六七八九十\\d]+)份", "truth": "fs.adr_files", "scope": ["CODE_WIKI.md"]}
   ],
   "declared": {
-    "spec_feature_dirs": 6,
-    "adr_files": 1,
+    "spec_feature_dirs": 7,
+    "adr_files": 2,
     "dev_logs": 3,
-    "scripts": 9,
+    "scripts": 10,
     "templates": 6,
-    "hooks": 4,
-    "progress_tasks": 10
+    "hooks": 5,
+    "progress_tasks": 11
   },
   "view_layer_samples": [],
   "doc_registry": [
-    {"label": "ADR-0001", "path": "adr/ADR-0001-规范载体为指针而非副本.md"},
+    {"label": "ADR-0001", "path": "adr/ADR-0001-spec-carrier-pointer-not-copy.md"},
+    {"label": "ADR-0002", "path": "adr/ADR-0002-degradation-gate.md"},
     {"label": "PROGRESS", "path": "docs/PROGRESS.md"},
     {"label": "M7", "path": "docs/M7_EVIDENCE_LOG.md"},
     {"label": "discoveries", "path": "docs/discoveries/README.md"},

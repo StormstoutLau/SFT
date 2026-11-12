@@ -20,6 +20,11 @@ repos:
         entry: python scripts/repo_stats.py
         language: system
         files: ^(CODE_WIKI\.md|README(\.en)?\.md|\.pre-commit-config\.yaml|docs/|spec/|adr/|scripts/)
+      - id: degradation-gate
+        name: Degradation propagation gate (P-011)
+        entry: python scripts/degradation_gate.py
+        language: system
+        files: ^(spec/|docs/reviews/)
       - id: step-enforce
         name: Step decision-stream enforcement
         entry: python scripts/step_enforce.py

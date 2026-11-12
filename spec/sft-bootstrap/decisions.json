@@ -51,7 +51,7 @@
       {
         "grade": "E1",
         "anchor": "spec/sft-bootstrap/DESIGN.md#L24",
-        "note": "原锚 adr/ADR-0001-规范载体为指针而非副本.md#L49 因 verify-anchor 不接受非 ASCII 文件名而改指 DESIGN §2（同一裁决的落点）；ADR-0001 本体见 scenario 叙述"
+        "note": "原锚 adr/ADR-0001-spec-carrier-pointer-not-copy.md#L49 因 verify-anchor 不接受非 ASCII 文件名而改指 DESIGN §2（同一裁决的落点）；ADR-0001 本体见 scenario 叙述"
       }
     ]
   },

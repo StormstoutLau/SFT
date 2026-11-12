@@ -11,7 +11,7 @@ upstream: null
 # PROGRESS 待办登记
 
 > 依据 SPEC_PROCESS 约定建立。状态词表: `pending / in-progress / blocked / done`。
-> **权威源**: 流程宪法 = `F:\Spec_Workflow\SPEC_PROCESS.md`（本仓以指针沿用，不复制副本 · 裁决见 [ADR/0001](../adr/ADR-0001-规范载体为指针而非副本.md)）。
+> **权威源**: 流程宪法 = `F:\Spec_Workflow\SPEC_PROCESS.md`（本仓以指针沿用，不复制副本 · 裁决见 [ADR/0001](../adr/ADR-0001-spec-carrier-pointer-not-copy.md)）。
 > **登记时点纪律**: 立项即登记——新批次开工前先登记 P 行，执行态不人写。
 > **建立**: 2026-11-11（骨架自举批）
 
@@ -19,7 +19,7 @@ upstream: null
 
 | ID | 事项 | 依据 | 状态 | 优先级 | 验收标准 |
 |----|------|------|------|--------|---------|
-| P-001 | D:\SFT 骨架自举——目录树 + 台账 + 校验器 + pre-commit + Spec_Runner 接入 | 用户裁决 2026-11-11「完全自举 / 接 runner 并挂 Review / 出网异构」· [ADR-0001](../adr/ADR-0001-规范载体为指针而非副本.md) | done | P0 | 逐项实测（详见 [CHECKLIST §10.1](../spec/sft-bootstrap/CHECKLIST.md)）：① dc_validator exit 0 ✅ ② m7_stats exit 0 ✅ ③ repo_stats exit 0 ✅ ④ probe 入流 + replay 通过 ✅ ⑤ pre-commit 已 install，**4/4 Passed** ✅ ⑥ 四文档齐 ✅ ⑦ 五步决策链 + verify-anchor 全真实 ✅（step-enforce 的两处阻断经 P-004 修复：前缀硬编码 + decision 写入口缺失） |
+| P-001 | D:\SFT 骨架自举——目录树 + 台账 + 校验器 + pre-commit + Spec_Runner 接入 | 用户裁决 2026-11-11「完全自举 / 接 runner 并挂 Review / 出网异构」· [ADR-0001](../adr/ADR-0001-spec-carrier-pointer-not-copy.md) | done | P0 | 逐项实测（详见 [CHECKLIST §10.1](../spec/sft-bootstrap/CHECKLIST.md)）：① dc_validator exit 0 ✅ ② m7_stats exit 0 ✅ ③ repo_stats exit 0 ✅ ④ probe 入流 + replay 通过 ✅ ⑤ pre-commit 已 install，**4/4 Passed** ✅ ⑥ 四文档齐 ✅ ⑦ 五步决策链 + verify-anchor 全真实 ✅（step-enforce 的两处阻断经 P-004 修复：前缀硬编码 + decision 写入口缺失） |
 | P-002 | 分布式微调可行性正式调研（RESEARCH） | [RESEARCH](../spec/distributed-sft/RESEARCH.md) · 上一轮对 `D:\RPC` 的只读取证（未成文）· 记忆条目 `rpc-cluster-training-verdict` | done | P1 | 逐项实测：F1 来源日期 ✅（读取日 2026-11-12 + 发布/更新日分列）· F2 版本 ✅（18 条 arXiv 含 vN + 仓内件绑 blob hash）· F3 降级链 ✅（english-search 522×3 / WebFetch 拦 / 两站点 0 命中全登记）· F4 引用表 ✅（20 行，含 2 条未验证行显式标态）· F5 = N/A（纯文档批）· 断言标 A/B/C ✅ · **未过**：DESIGN/IMPL/CHECKLIST 未开（Step 3+）；B1/B3/B5 单源待二核 **未过项已消**：DESIGN 已另立 P-006 完成；P-002 范围界定为调研批（Step 1-2），已收口 |
 | P-003 | 三站 RCCL 训练前置实测（跨机吞吐 / world_size=3 / A 站补装） | P-002 结论待定 | blocked | P2 | 三站在线后可做；当前 ping 全不通（2026-11-11 实测） |
 | P-004 | runner 升级 v1.0.0→v1.11.0 + step_enforce 前缀修复 + decision 写入器 | [decisions](../spec/runner-upgrade/decisions.json) · DIS-101 · 用户裁决 2026-11-12「换 runner v1.11.0 复制进本仓」 | done | P0 | 逐项实测：① `--version` = 1.11.0 ✅ ② `sessions_dir()` 落本仓 ✅ ③ step-gate 5/5 pass exit 0 ✅ ④ verify-anchor 13 锚点全真实 exit 0 ✅ ⑤ step_enforce 对 P-001/P-002 通过 ✅ ⑥ DIS-102 登记 ✅ |
@@ -29,6 +29,7 @@ upstream: null
 | P-008 | A-1 冒烟测试设计（充分参考社区案例与 RPC 实际经验） | [RESEARCH](../spec/a1-smoke-test/RESEARCH.md) · [DESIGN](../spec/a1-smoke-test/DESIGN.md) · 回写 [distributed-sft RESEARCH v1.3](../spec/distributed-sft/RESEARCH.md) 与 [DESIGN v1.3](../spec/distributed-sft/DESIGN.md) · 用户指令 2026-11-12「把 A-1 冒烟测试设计出来」 | done | P1 | 逐项实测：① 官方 T1 取证 13 条（U1-U13，WebFetch `?ask=` 实取）✅ ② `D:\RPC` 本集群经验 8 条（R1-R8 绑 blob hash）✅ ③ ★ 三条推翻性发现：官方**明列 gfx1151 支持 LoRA**（推翻本仓 P-002「官方数据全在 A100/Colab」）· MoE 4-bit 限制仅对 unmodified bnb 成立 · 4-bit 冒烟不验 bf16 ⇒ 双臂强制 ✅ ④ 六闸门设计（G0-G5）每条判据配先验红 + 退出码三分 ✅ ⑤ 回写 RESEARCH v1.3 / DESIGN v1.3（A-1 由 E5 降为待复现）✅ ⑥ M7 样本 6 入账 ✅ ⑦ 四道门禁 Passed ✅ ⚠ 本行 done 当时仅覆盖「设计已写出」，Step 4 独立 pass 由 P-009 补做 |
 | P-009 | P-008 的 RULE-5 补审（A-1 冒烟设计异构复审） | [review-decisions](../spec/a1-smoke-test/review-decisions.json) · [adjudication](../docs/reviews/p008-smoke.adjudication.md) · [review 取证](../docs/reviews/p008-smoke.review.md) · 用户质询 2026-11-12「设计是否完成异构复审」 | done | P1 | 逐项实测：① 承认 P-008 漏审（违反 P-006 自写元结论）✅ ② `--mode design` 审查 10 条 = 8 成立/2 部分/0 不成立 ✅ ③ ★ 成立 1 命中要害：三处容许带标「不预设」= 把有无判据推给实施，I-3 不可判 ⇒ 解为自校准对照 `≤k·δ_ref` ✅ ④ R1-R10 全落 DESIGN v1.1（退出码消歧 / G4 拆两级 / A 站归因对照 / `--venv` 必填 / 结构判据替代日志判据）✅ ⑤ 驳回审查者多卡假设（每站单颗 8060S）✅ ⑥ 四道门禁 Passed ✅ |
 | P-010 | 面向数理/编程/证明的全流程微调方案分析 | [RESEARCH](../spec/domain-sft-pipeline/RESEARCH.md) · [adjudication](../docs/reviews/p010-pipeline.adjudication.md) · 用户指令 2026-11-12「分析 Strix Halo 开箱即用微调框架 + 全流程方案」 | done | P1 | 逐项实测：① 三问分答（开箱即用 / L0 细化 / 七段全流程）✅ ② arXiv T1 取证 8 篇（含 2026-11-10 两天前的 GRPO matched-compute）✅ ③ ★ **RULE-5 主动 pass**（未等质询）：8 条发现**全成立、零驳回** ⇒ 主结论「Studio 真开箱」被推翻（未验项被标 A 级）、六条规律由 A 降 B（abstract 级）、GRPO 等算力结论不可零成本迁移 SFT ✅ ④ R1-R8 全落 v1.1 ✅ ⑤ 元结论「第六次复发同类错误 ⇒ 应门禁化」已提检查器方案 ✅ ⑥ 四道门禁 Passed ✅ |
+| P-011 | 降级传播门禁（治第六次复发的本） | [ADR-0002](../adr/ADR-0002-degradation-gate.md) · [decisions](../spec/degradation-gate/decisions.json) · 用户指令 2026-11-12「把那条门禁做出来」 | done | P1 | 逐项实测：① selftest 5 用例全 PASS（含先验红 F1/F2 + 先验绿 F3 + 控误报 F4/F5）✅ ② ★ **历史错误形态注入测试**：摘掉 RESEARCH 的 B9 降级标记 ⇒ 精确报出 L167 exit 1（证它在真实错误上能红，非只在 fixture 红）✅ ③ 首版 27 条大半误报 ⇒ 收紧为「强词 + 条目位」✅ ④ 收紧过头致 2 条误报 ⇒ 补前缀短形 ✅ ⑤ 真实仓 35 文件 0 违规 ✅ ⑥ 接入为第 5 道 hook，五道全 Passed ✅ |
 
 ## 依赖链
 

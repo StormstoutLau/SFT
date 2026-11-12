@@ -1,7 +1,7 @@
 # AGENTS.md
 
 > **本文件 = `F:\Spec_Workflow\SPEC_PROCESS.md` 的操作摘要桥**（沿用其 CER C-01 形态）。
-> **权威源**：`F:\Spec_Workflow\SPEC_PROCESS.md` v1.7.2 —— 本文件保持「指针 + 最小摘要」，**不复制规则全文**；如有出入以权威源为准。载体裁决见 [ADR-0001](adr/ADR-0001-规范载体为指针而非副本.md)。
+> **权威源**：`F:\Spec_Workflow\SPEC_PROCESS.md` v1.7.2 —— 本文件保持「指针 + 最小摘要」，**不复制规则全文**；如有出入以权威源为准。载体裁决见 [ADR-0001](adr/ADR-0001-spec-carrier-pointer-not-copy.md)。
 
 ## 仓库性质
 

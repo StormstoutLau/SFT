@@ -26,6 +26,7 @@ upstream: "F:\\Spec_Workflow\\docs\\M7_EVIDENCE_LOG.md"
 | 6 | 2026-11-12 | P-002 RESEARCH §3.4-1（本仓，P-008 回原文复核轮） | 同基座自查（WebFetch 通道恢复后回官方文档，非独立审查臂） | 1（1P2） | 1（转述引文——采信 `D:\RPC` 二手记录「加速数据多在 colab/A100 测得」，未回原文即加强写成「Unsloth 官方数据全在 A100/Colab/N 卡」并据此判「无参照系」；实测官方文档明列 gfx1151 支持 LoRA 训练 ⇒ 二手转述被当一手结论用，且推理跳了一步） | spec/a1-smoke-test/RESEARCH.md §3.3 |
 | 7 | 2026-11-12 | P-010 RESEARCH.md（本仓，**RULE-5 主动 pass**） | 异基座 `nvidia/nemotron-3-ultra-550b-a55b:free`（`--mode research`），收口前主动做、非补审 | 8（4P1+2P2+2P3）；判定 = **成立 8 / 部分 0 / 不成立 0** | 0（★ 本仓首次零驳回——但**不可归因于审查变准**：本档问题密度可能确实高，六条规律全靠 abstract、主结论单源） | docs/reviews/p010-pipeline.adjudication.md |
 
+| 8 | 2026-11-12 | P-011 degradation_gate（本仓，门禁自测轮） | 机械三重验证（fixture 先验红/绿 + 真实语料全量 + **历史错误形态注入**） | 2（2P2） | 1（计数——首版把 ⚠/◐ 等通用强调符当降级标记，真实仓跑出 27 条而真靶仅约 1/3；收紧后又因词表漏「未验」「复核」前缀短形再错 2 条） | ADR-0002 §验证 |
 ## 2. 形态 II 复发分桶（载体 × 字段类型）
 
 > 字段类型 = 形态 II 偏好的"精确-looking 低语义载荷"字段。
@@ -37,7 +38,8 @@ upstream: "F:\\Spec_Workflow\\docs\\M7_EVIDENCE_LOG.md"
 | P-004 决策链锚点（本仓，verify-anchor 机检轮） | — | 6 | — | 1 | — | — | — | 7 |
 | P-002 RESEARCH 异构审查轮（本仓，审查者侧形态 II） | — | 2 | 1 | — | — | — | — | 3 |
 | P-002 §3.4-1 回原文复核（本仓，转述当一手） | — | — | — | — | — | 1 | — | 1 |
-| 合计 | 1 | 8 | 1 | 1 | 0 | 1 | 1 | 13 |
+| P-011 门禁自测轮（本仓，判据宽严双向失准） | — | — | — | — | 1 | — | — | 1 |
+| 合计 | 1 | 8 | 1 | 1 | 1 | 1 | 1 | 14 |
 
 ## 3. 规律锚点
 
@@ -53,22 +55,22 @@ upstream: "F:\\Spec_Workflow\\docs\\M7_EVIDENCE_LOG.md"
 
 ```hits
 {
-  "samples": 7,
+  "samples": 8,
   "form2_by_field": {
     "version": 1,
     "section": 8,
     "constant": 1,
     "line": 1,
-    "count": 0,
+    "count": 1,
     "quote": 1,
     "mapping": 1
   },
-  "form2_total": 13,
+  "form2_total": 14,
   "form2_pre_ledger": 0,
-  "form2_from_samples": 13,
+  "form2_from_samples": 14,
   "findings": {
     "p1": 9,
-    "p2": 20,
+    "p2": 22,
     "p3": 7,
     "unlabeled": 0,
     "cells_nonstandard": 0

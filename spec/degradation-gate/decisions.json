@@ -1,0 +1,114 @@
+[
+  {
+    "step_id": "research",
+    "step_seq": 1,
+    "category": "feature-design",
+    "decision_maker": "Claude Opus 5",
+    "entities": [
+      "docs/reviews/p010-pipeline.adjudication.md"
+    ],
+    "scenario": "P-010 判定 §5 提出「反复复发的错误形态应门禁化」，用户令把这条门禁做出来。先要确认复发是否真的构成可机械化的形态。",
+    "reasoning": "把六次复发逐条列出比对，发现共同结构高度一致：某标识符（B9/A-1/L3/Studio）在降级语境被标未验，在结论语境被无标记引用。⇒ 匹配单元可以是标识符而非语义，这是可机械化的判据。同时确认自觉已被证伪——每份文档都写了「本档要防这条」仍复发，所以再加自觉无增量。",
+    "outcome": "确认形态可门禁化，判据定为「降级行标识符 ∩ 结论行标识符 且结论行无降级标记」。",
+    "evidence": [
+      {
+        "grade": "E1",
+        "anchor": "docs/reviews/p010-pipeline.adjudication.md §5"
+      },
+      {
+        "grade": "E1",
+        "anchor": "docs/reviews/p010-pipeline.adjudication.md §2"
+      }
+    ]
+  },
+  {
+    "step_id": "design",
+    "step_seq": 2,
+    "category": "feature-design",
+    "decision_maker": "Claude Opus 5",
+    "entities": [
+      "scripts/degradation_gate.py",
+      "adr/ADR-0002-degradation-gate.md"
+    ],
+    "scenario": "匹配面怎么定才既抓得住又不冤枉——本仓 DIS-009 已记过「元描述语境含被描述 token ⇒ 误报」的同族教训。",
+    "reasoning": "三处关键取舍：① 只认标识符不认自然语言关键词，把「判断」降级成「字符串等值」，这是可门禁化的前提；② 降级侧只认**条目位**（表格首列/粗体项）的 ID，否则正文随便提到的 G0/R1/D6 都会被登记；③ 结论区靠标题语义词识别而非硬编码 §N，因 RESEARCH/DESIGN/CHECKLIST 结构不同。拒绝并入 dc_validator：那会加大与上游副本的漂移面，独立件可单独摘除。",
+    "outcome": "ADR-0002 定形判据与三重验证要求；检查器接口 = 全仓 / 指定文件 / --selftest。",
+    "evidence": [
+      {
+        "grade": "E3",
+        "anchor": "adr/ADR-0002-degradation-gate.md#L54"
+      },
+      {
+        "grade": "E3",
+        "anchor": "adr/ADR-0002-degradation-gate.md#L72"
+      }
+    ]
+  },
+  {
+    "step_id": "implement",
+    "step_seq": 3,
+    "category": "adr",
+    "decision_maker": "Claude Opus 5",
+    "entities": [
+      "scripts/degradation_gate.py",
+      ".pre-commit-config.yaml"
+    ],
+    "scenario": "落实现并接为第 5 道 hook。",
+    "reasoning": "按本仓纪律「判据必须命得中」，接门禁前先做 selftest 双用例（先验红 + 先验绿）。hook 的 files 判据收窄到 spec/ 与 docs/reviews/（结论区语义只在这两处成立，全仓扫会把台账误判）。",
+    "outcome": "degradation_gate.py 落盘；.pre-commit-config.yaml 增 degradation-gate hook；hooks 4→5、scripts 9→10。",
+    "evidence": [
+      {
+        "grade": "E1",
+        "anchor": "adr/ADR-0002-degradation-gate.md#L86"
+      },
+      {
+        "grade": "E1",
+        "anchor": "docs/PROGRESS.md#L32"
+      }
+    ]
+  },
+  {
+    "step_id": "verify",
+    "step_seq": 4,
+    "category": "m7_sample",
+    "decision_maker": "Claude Opus 5（机械自测 + 真实语料 + 历史注入）",
+    "entities": [
+      "docs/M7_EVIDENCE_LOG.md"
+    ],
+    "scenario": "门禁的有效性不能只看 selftest——只在 fixture 上红的检查器对本仓毫无价值。",
+    "reasoning": "三重验证：① selftest 5 用例（红/绿/控误报）全 PASS；② 真实仓跑出 27 条，逐条看发现大半误报 ⇒ 根因是把 ⚠/◐ 这类通用强调符当降级标记、且行内任意 token 都登记为条目；③ ★ 收紧后仍剩 2 条误报，查得是**收紧过头**——文档实际写「完全未验」「回原文后复核」，词表只留「未验证」「待复核」漏了前缀短形。最后把 RESEARCH 的 B9 降级标记摘掉做历史注入测试，检查器精确报出 L167 exit 1 ⇒ 证明它在真实错误上能红。",
+    "outcome": "selftest 5/5；真实仓 35 文件 0 违规；历史注入 exit 1；两次自我错误入 M7 样本 8。",
+    "evidence": [
+      {
+        "grade": "E1",
+        "anchor": "adr/ADR-0002-degradation-gate.md#L100"
+      },
+      {
+        "grade": "E1",
+        "anchor": "docs/M7_EVIDENCE_LOG.md §1"
+      }
+    ]
+  },
+  {
+    "step_id": "finalize",
+    "step_seq": 5,
+    "category": "progress_ruling",
+    "decision_maker": "Scott（鹏）+ Claude Opus 5",
+    "entities": [
+      "docs/PROGRESS.md"
+    ],
+    "scenario": "收口并明确门禁与人工审查的关系。",
+    "reasoning": "必须写清本门禁**不取代** RULE-5：它只覆盖「带 ID 的降级声明被无标记引用」，未验条目若不写 ID 就漏报（负面已记 ADR-0002）。⇒ 两者互补：门禁管高频低语义的复发，异构审查管低高频高语义的判断。失效条件三条已登记（误报回升 / 合法引用成规模 / 上游并档）。",
+    "outcome": "P-011 done；五道门禁全 Passed；ADR-0002 accepted；本仓门禁集 = dc-validator / m7-stats / repo-stats / degradation-gate / step-enforce。",
+    "evidence": [
+      {
+        "grade": "E1",
+        "anchor": "adr/ADR-0002-degradation-gate.md#L86"
+      },
+      {
+        "grade": "E1",
+        "anchor": "docs/PROGRESS.md#L32"
+      }
+    ]
+  }
+]

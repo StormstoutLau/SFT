@@ -15,7 +15,7 @@
 
 ## 决策依据
 
-见 `adr/ADR-0001-规范载体为指针而非副本.md` 与 `spec/sft-bootstrap/DESIGN.md` D1-D6。
+见 `adr/ADR-0001-spec-carrier-pointer-not-copy.md` 与 `spec/sft-bootstrap/DESIGN.md` D1-D6。
 
 ## 遇到的问题（含自身错误）
 

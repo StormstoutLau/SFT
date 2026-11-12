@@ -1,6 +1,6 @@
 # D:\SFT —— 分布式微调工作区
 
-> 规范权威源 = `F:\Spec_Workflow`（本仓以指针沿用，见 [ADR-0001](adr/ADR-0001-规范载体为指针而非副本.md)）
+> 规范权威源 = `F:\Spec_Workflow`（本仓以指针沿用，见 [ADR-0001](adr/ADR-0001-spec-carrier-pointer-not-copy.md)）
 > 算力底座 = `D:\RPC` 三机集群
 > 门面状态：骨架自举中（P-001）
 
