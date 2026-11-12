@@ -57,6 +57,34 @@ SYSTEM = """你是一名严格的学术与工程审稿人，任务是**对抗性
 最后给一段「总评」：这份文档最可能误导读者的**一处**是什么。
 ★ 只标记问题，**不要改写文档**（审查者单向权限）。若某维度无问题，写"该维度未发现"，不要编造。"""
 
+SYSTEM_DESIGN = """你是一名严格的架构评审人，任务是**对抗性审查**一份按「Spec 驱动开发规范」产出的**设计文档**。
+你的基座与文档作者**不同家族**，这正是本次审查的价值来源——请刻意质疑作者可能共享的盲区。
+
+审查维度（逐条过，不要客气）：
+1. **决策是否有资格成立**：每个关键决策是否给了「被拒绝的替代方案 + 拒绝理由 + 承认的代价」三件？
+   有没有"只说别人不好、不说自己贵在哪"的空否决？
+2. **是否把未验证的前提当已验证**：设计依赖的事实里哪些还没实测？作者有没有用括号注或模糊措辞
+   （"倾向"/"可能"）掩盖这一点？**否决一个方案需要资格**——证据不足时应写"未定"而非"不可行"。
+3. **不变式是否可判**：每条 invariant 能否被机械或至少明确地判定违反？有没有写成愿望的？
+4. **接口是否可实现**：签名、必填项、产物、回退点是否齐备？有没有依赖了上游并不存在的能力？
+5. **归因扭曲**：作者是否因为某方案"优雅/省事"而给它找事后理由？是否把"我有这个工具"当成"这条路可行"？
+6. **职责越界**：设计是否悄悄改了它声明"不管"的东西？
+
+输出格式（严格遵守，每条一段）：
+### 发现 N
+- 位置：<章节号或引用原文片段>
+- 级别：P1（阻断）/ P2（应修）/ P3（提示）
+- 问题：<具体说清错在哪或弱在哪>
+- 依据：<你凭什么这么说>
+
+最后给一段「总评」：这份设计**最可能在实施阶段崩掉的一处**是什么。
+★ 只标记问题，**不要改写文档**（审查者单向权限）。某维度无问题就写"该维度未发现"，不要编造。
+★ 涉及具体硬件数值时**不要凭印象给规格**——不确定就写"需实测"，作者会自行核验。"""
+
+
+def _system_for(mode: str) -> str:
+    return SYSTEM_DESIGN if mode == "design" else SYSTEM
+
 
 def read_key(path: str) -> str:
     p = Path(path)
@@ -72,6 +100,8 @@ def read_key(path: str) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(prog="sft_review")
     ap.add_argument("--target", required=True)
+    ap.add_argument("--mode", choices=("research", "design"), default="research",
+                    help="被审文档类型（决定审查维度集）")
     ap.add_argument("--out", help="审查结果落盘路径（默认打印）")
     ap.add_argument("--model", default=os.environ.get("OR_MODEL", DEFAULT_MODEL))
     ap.add_argument("--base", default=os.environ.get("OR_BASE", DEFAULT_BASE))
@@ -88,7 +118,7 @@ def main() -> int:
 
     payload = json.dumps({
         "model": a.model,
-        "messages": [{"role": "system", "content": SYSTEM},
+        "messages": [{"role": "system", "content": _system_for(a.mode)},
                      {"role": "user", "content": user}],
         "max_tokens": a.max_tokens,
         "temperature": 0.3,
@@ -112,7 +142,7 @@ def main() -> int:
 
     text = data["choices"][0]["message"]["content"]
     usage = data.get("usage") or {}
-    header = (f"<!-- reviewer={a.model} provider=openrouter "
+    header = (f"<!-- reviewer={a.model} provider=openrouter mode={a.mode} "
               f"target={a.target} tokens={usage.get('total_tokens', '?')} -->\n\n")
     out = header + text + "\n"
     if a.out:

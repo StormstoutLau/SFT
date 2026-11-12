@@ -22,6 +22,7 @@ upstream: "F:\\Spec_Workflow\\docs\\M7_EVIDENCE_LOG.md"
 | 2 | 2026-11-11 | sft-bootstrap CHECKLIST §8.2 发现 2（本仓，ADD Phase 3 自审） | 同基座自查（审计臂自身无第二视角，RULE-4） | 1（1P3） | 1（映射闭合——判 `spec_map.py`「无门禁消费」时只查了 `.pre-commit-config.yaml` 的 files 正则，未查 `console_gen.py` L47 `import spec_map`；证据全真、推理跳步 = 形态 III，删除后经 `import console_gen` 实测恢复） | 本文件 §8.2 更正记录 |
 | 3 | 2026-11-12 | P-004 决策链锚点（本仓，verify-anchor 机检轮） | **机械核查异构于生成端**（verify-anchor 纯脚本，非 LLM 自任验证器） | 7（7P2） | 7（章节号 6 + 行号 1——锚点章节名按文档标题字面凭印象写：`§决策` / `§待办事项` / `§命令面` / `文件头差异节` / `DIS-100` 无定位符 / 裸路径无定位符；另 1 处行号类 = 中文文件名不被锚点正则接受） | P-004 实施轮 |
 | 4 | 2026-11-12 | P-002 RESEARCH.md（本仓，**RULE-5 异构审查轮**） | ★ **异基座**：审查者 `nvidia/nemotron-3-ultra-550b-a55b:free` vs 实现者 A 站 halogen `qwen 3.8 flash next`（跨家族，本仓首个异构臂） | 10（3P1+5P2+2P3）；实现者判定 = 成立 5 / 部分 3 / **不成立 2** | 3（**审查者自身**形态 II：章节号 2——引论文 §3.2/§4.3 细节但 abstract 无从支撑，疑生成填充；数值常量 1——按 16 CU 推 gfx1151 得 11.5 TFLOPS，实为 40 CU，低估约 4×） | docs/reviews/p002-research.adjudication.md |
+| 5 | 2026-11-12 | P-006 DESIGN.md（本仓，**RULE-5 异构审查轮 2**） | 异基座 `nvidia/nemotron-3-ultra-550b-a55b:free`（`--mode design`）vs 实现者 halogen `qwen 3.8 flash next` | 8（2P1+4P2+2P3）；判定 = 成立 6 / 部分 2 / **不成立 0** | 0（★ 与轮 1 对照：本轮审查者零事实错误——疑因提示词新增「不要凭印象给硬件规格」约束，亦可能因设计文档多为内部一致性命题，**两因不可分离**） | docs/reviews/p006-design.adjudication.md |
 
 ## 2. 形态 II 复发分桶（载体 × 字段类型）
 
@@ -49,7 +50,7 @@ upstream: "F:\\Spec_Workflow\\docs\\M7_EVIDENCE_LOG.md"
 
 ```hits
 {
-  "samples": 4,
+  "samples": 5,
   "form2_by_field": {
     "version": 1,
     "section": 8,
@@ -63,9 +64,9 @@ upstream: "F:\\Spec_Workflow\\docs\\M7_EVIDENCE_LOG.md"
   "form2_pre_ledger": 0,
   "form2_from_samples": 12,
   "findings": {
-    "p1": 3,
-    "p2": 13,
-    "p3": 3,
+    "p1": 5,
+    "p2": 17,
+    "p3": 5,
     "unlabeled": 0,
     "cells_nonstandard": 0
   }

@@ -1,0 +1,75 @@
+[
+  {
+    "step_id": "research",
+    "step_seq": 1,
+    "category": "feature-design",
+    "decision_maker": "Claude Opus 5（Qwen 基座）",
+    "entities": ["D:\\RPC\\adr\\ADR-0014", "spec/distributed-sft/DESIGN.md"],
+    "scenario": "用户令开 P-002 的 DESIGN 把 L0 定形。Step 3 契约要求「需外部事实时回 Step 1」，而 L0 依赖两个此前未查的事实：halogen 引擎性质（本会话基座）与 Unsloth 在本仓是否有训练痕迹。",
+    "reasoning": "先取证再设计，不凭印象。实测：① ADR-0014 明确 halogen = 第三方 OCI **推理**引擎（ghcr.io/peonist-ai/halogen-flash-server），且明写不为生产可靠性背书 ⇒ 我的基座是推理栈产物，与训练无关；② grep D:\\RPC 全仓 unsloth 命中面全在 studio 代理层（cluster_runtime/cluster_secrets/rpc_stations），**无任何训练命令面痕迹** ⇒ 印证 B11。两条共同决定：L0 的实现路径上没有任何一环已被验证过。",
+    "outcome": "确立设计前提：L0 的头号未知是「gfx1151 能否训练」而非通信；halogen 与训练无关。",
+    "evidence": [
+      {"grade": "E3", "anchor": "spec/distributed-sft/DESIGN.md §2.1"},
+      {"grade": "E1", "anchor": "docs/dev-log/DEV-LOG-001-sft-bootstrap-skeleton.md#L30"}
+    ]
+  },
+  {
+    "step_id": "design",
+    "step_seq": 2,
+    "category": "feature-design",
+    "decision_maker": "Claude Opus 5",
+    "entities": ["spec/distributed-sft/DESIGN.md"],
+    "scenario": "L0 需定形为可实施设计：训练栈、目标模型、精度档、数据切分、合并方法、评估判据、站点选择、前置实测八项，且每项要带拒绝方案与代价。",
+    "reasoning": "核心判断是 L0 的定义性性质——零跨机集合通信，故不受 RCCL 大包吞吐未取证的约束，这是选它的理由。数据切分方式反过来决定合并方法：IID 切分下 CAT（论文设定是不同 skill 合并）适用域存疑，故默认走加权平均。评估必须三臂对照（base / ad_single / ad_merged），因为「合并是否优于单站」是 L0 的全部价值主张，无对照即不可判。",
+    "outcome": "DESIGN v1.0：架构四流（数据/控制/模块/接口）+ 不变式 I-1~I-6 + 替代方案 A-D（含 B 推迟、C 否决、D 未定）+ 假设区 A-1~A-6。",
+    "evidence": [
+      {"grade": "E3", "anchor": "spec/distributed-sft/DESIGN.md §3.1"},
+      {"grade": "E3", "anchor": "spec/distributed-sft/DESIGN.md §5.1"},
+      {"grade": "E4", "anchor": "spec/distributed-sft/DESIGN.md §8"}
+    ]
+  },
+  {
+    "step_id": "implement",
+    "step_seq": 3,
+    "category": "adr",
+    "decision_maker": "Claude Opus 5",
+    "entities": ["spec/distributed-sft/DESIGN.md", "scripts/sft_review.py"],
+    "scenario": "DESIGN 落盘后须做 Step 4 Review，但 §9 与正文同次写入 ⇒ 按 RULE-1 只能标 [自查·并发]，需独立 pass 才能升级。",
+    "reasoning": "独立 pass 直接用刚验证有效的异构审查，而非另开一个同基座会话（后者只消除记忆污染、不消除同分布盲区）。审查维度对设计文档与调研文档不同，故给 sft_review.py 加 --mode design：审决策三件套齐不齐、是否把未验证当前提、不变式可否判、接口可否实现、归因扭曲、职责越界。并针对 P-005 审查者编造硬件规格的教训，在提示词加「不要凭印象给规格，不确定写需实测」。",
+    "outcome": "DESIGN.md v1.0 落盘；sft_review.py 增 --mode {research|design} 双提示词组。",
+    "evidence": [
+      {"grade": "E3", "anchor": "scripts/sft_review.py#L31"},
+      {"grade": "E1", "anchor": "spec/distributed-sft/DESIGN.md §9"}
+    ]
+  },
+  {
+    "step_id": "verify",
+    "step_seq": 4,
+    "category": "m7_sample",
+    "decision_maker": "Nemotron 550B 审查 + Claude Opus 5 判定（RULE-5 单向权限）",
+    "entities": ["docs/reviews/p006-design.review.md", "docs/reviews/p006-design.adjudication.md"],
+    "scenario": "Step 4 独立 pass 执行与判定。",
+    "reasoning": "审查者给 8 条发现，判定 6 成立 / 2 部分 / 0 不成立。最有价值的是成立 2：我把「规避性能风险」写成「唯一理由」，掩盖 L0 把重心压在可行性风险 A-1 上——两类未取证风险性质不同（跑多快 vs 跑不跑得动），我却用同一套话术并列。成立 1 更刺：§5.1 把「128 GB 装得下」当既定事实，而 §2.1 已判 B9 不可作判据，我在本档自我约束段刚写了要防这条仍然犯 ⇒ 说明缺的不是知识而是检查动作。",
+    "outcome": "取证 prompt 6017 / completion 8046 / reasoning 5330，cost 0；adjudication 落盘含 R1-R8 改动清单；M7 样本 5 入账（本轮审查者零事实错误，与轮 1 的 2/10 形成对照）。",
+    "evidence": [
+      {"grade": "E1", "anchor": "docs/reviews/p006-design.review.md#L1"},
+      {"grade": "E1", "anchor": "docs/reviews/p006-design.adjudication.md#L18"},
+      {"grade": "E4", "anchor": "docs/reviews/p006-design.adjudication.md#L60"}
+    ]
+  },
+  {
+    "step_id": "finalize",
+    "step_seq": 5,
+    "category": "progress_ruling",
+    "decision_maker": "Claude Opus 5",
+    "entities": ["spec/distributed-sft/DESIGN.md"],
+    "scenario": "成立项须真正落进设计，且 RULE-1 状态要从 [自查·并发] 升级。",
+    "reasoning": "R1-R8 全部落实：新增 orchestrate 模块并写死故障域五件（状态机/超时/部分失败/VRAM 释放确认/引擎恢复），因为叶子脚本各有签名不等于系统能跑；I-5 幂等由硬不变式降为尽力复现（在未验证的 ROCm 栈上写死复现性，冒烟时必失效）；I-6 改为可判形式——用前置拒绝替代事后检测，因本仓无 MIG 隔离，探针只能确认会死不能防死；接口加 --backend 做引擎无关抽象，把 A-1 失败的代价从全量重写降为换实现，并新增 A-7 明写「不得声称有回退方案，只能说有回退接口」。",
+    "outcome": "DESIGN v1.0 → v1.1；§9.5 记独立 pass 并升 [已复核]；假设区扩至 A-1~A-9；P-006 收口。",
+    "evidence": [
+      {"grade": "E1", "anchor": "spec/distributed-sft/DESIGN.md §9.5"},
+      {"grade": "E1", "anchor": "spec/distributed-sft/DESIGN.md §11"},
+      {"grade": "E1", "anchor": "docs/PROGRESS.md#L27"}
+    ]
+  }
+]
