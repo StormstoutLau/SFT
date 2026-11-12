@@ -27,6 +27,8 @@ upstream: "F:\\Spec_Workflow\\docs\\M7_EVIDENCE_LOG.md"
 | 7 | 2026-11-12 | P-010 RESEARCH.md（本仓，**RULE-5 主动 pass**） | 异基座 `nvidia/nemotron-3-ultra-550b-a55b:free`（`--mode research`），收口前主动做、非补审 | 8（4P1+2P2+2P3）；判定 = **成立 8 / 部分 0 / 不成立 0** | 0（★ 本仓首次零驳回——但**不可归因于审查变准**：本档问题密度可能确实高，六条规律全靠 abstract、主结论单源） | docs/reviews/p010-pipeline.adjudication.md |
 
 | 8 | 2026-11-12 | P-011 degradation_gate（本仓，门禁自测轮） | 机械三重验证（fixture 先验红/绿 + 真实语料全量 + **历史错误形态注入**） | 2（2P2） | 1（计数——首版把 ⚠/◐ 等通用强调符当降级标记，真实仓跑出 27 条而真靶仅约 1/3；收紧后又因词表漏「未验」「复核」前缀短形再错 2 条） | ADR-0002 §验证 |
+| 9 | 2026-11-12 | P-012 DESIGN.md（本仓，RULE-5 主动 pass 轮 3） | 异基座 Nemotron 550B（`--mode design`），首调返回非 JSON、同通道重试即通 | 10（3P1+5P2+2P3）；判定 = 成立 9 / 部分 1 / **不成立 0** | 0（★ 连续第二轮零驳回；但**不可归因审查变准**——本仓文档问题密度随批次上升） | docs/reviews/p012-pipeline-design.adjudication.md |
+
 ## 2. 形态 II 复发分桶（载体 × 字段类型）
 
 > 字段类型 = 形态 II 偏好的"精确-looking 低语义载荷"字段。
@@ -55,7 +57,7 @@ upstream: "F:\\Spec_Workflow\\docs\\M7_EVIDENCE_LOG.md"
 
 ```hits
 {
-  "samples": 8,
+  "samples": 9,
   "form2_by_field": {
     "version": 1,
     "section": 8,
@@ -69,9 +71,9 @@ upstream: "F:\\Spec_Workflow\\docs\\M7_EVIDENCE_LOG.md"
   "form2_pre_ledger": 0,
   "form2_from_samples": 14,
   "findings": {
-    "p1": 9,
-    "p2": 22,
-    "p3": 7,
+    "p1": 12,
+    "p2": 27,
+    "p3": 9,
     "unlabeled": 0,
     "cells_nonstandard": 0
   }

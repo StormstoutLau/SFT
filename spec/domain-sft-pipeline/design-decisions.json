@@ -1,0 +1,73 @@
+[
+  {
+    "step_id": "research",
+    "step_seq": 1,
+    "category": "feature-design",
+    "decision_maker": "Claude Opus 5",
+    "entities": ["spec/domain-sft-pipeline/DESIGN.md"],
+    "scenario": "用户令出 P-010 的 DESIGN 把七段流程定形。P-010 已把六条规律降为 B 级、等算力单位列为前置任务，设计不得再当已证前提用。",
+    "reasoning": "定形过程中发现一处影响全局的误判：P-010 说「[1][2][3] 不依赖训练硬件」，但 [2] 内部三个验证器依赖不同——exec/math_eq 纯 CPU，lean 路依赖 B/C 站池且离线吞吐从未测过。⇒ 分层必须按验证器切而非按段切，这直接改写了可先行的范围。",
+    "outcome": "DESIGN v1.0 落盘（七段接口 + 数据契约 + 分片↔合并映射 + I-1~I-7 + C-1~C-4/Q-1~Q-3）。",
+    "evidence": [
+      {"grade": "E1", "anchor": "spec/domain-sft-pipeline/DESIGN.md §2.1"},
+      {"grade": "E3", "anchor": "spec/domain-sft-pipeline/DESIGN.md §3.2"}
+    ]
+  },
+  {
+    "step_id": "design",
+    "step_seq": 2,
+    "category": "feature-design",
+    "decision_maker": "Claude Opus 5",
+    "entities": ["spec/domain-sft-pipeline/DESIGN.md"],
+    "scenario": "七段要定形段间依赖、分片与合并的关系、以及哪些现在能做。",
+    "reasoning": "核心设计判断有二：① 分片方式决定合并方法的合法性，方向单向不可倒推（若先选 CAT 再倒推分片，等于用方法找理由）；② Lean 验证器三判据（编译+sorry-free+axiom 审计）是**必要非充分**——齐了只说明没过的一定有问题，不说明过了的一定没问题，have 隐藏 sorry、类型类循环等 Lean 特有漏洞未覆盖。③ 本集群独特位置在 Auto_Prover 自有轨迹：证明轨迹已在产生、零获取成本，且答案可机判。",
+    "outcome": "分层三列（立即可做 / 阻塞 C-4 / 阻塞 A-1）+ 分片↔合并映射表 + lean 三判据降为必要非充分。",
+    "evidence": [
+      {"grade": "E3", "anchor": "spec/domain-sft-pipeline/DESIGN.md §5.3"},
+      {"grade": "E4", "anchor": "spec/domain-sft-pipeline/DESIGN.md §4.2"}
+    ]
+  },
+  {
+    "step_id": "implement",
+    "step_seq": 3,
+    "category": "adr",
+    "decision_maker": "Claude Opus 5",
+    "entities": ["docs/reviews/p012-pipeline-design.review.md"],
+    "scenario": "按 P-009/P-010 教训主动做 RULE-5 独立 pass。",
+    "reasoning": "首调返回非 JSON（网关错误页），同通道重试即通 ⇒ 未记降级链（未换通道，不构成 F3 的通道降级）。审查用 --mode design 提示词组。",
+    "outcome": "取证 prompt 5854 / completion 3515 / reasoning 150，cost 0；DESIGN v1.0 定稿待审。",
+    "evidence": [
+      {"grade": "E1", "anchor": "docs/reviews/p012-pipeline-design.review.md#L1"}
+    ]
+  },
+  {
+    "step_id": "verify",
+    "step_seq": 4,
+    "category": "m7_sample",
+    "decision_maker": "Nemotron 550B 审查 + Claude Opus 5 判定",
+    "entities": ["docs/reviews/p012-pipeline-design.adjudication.md", "scripts/degradation_gate.py"],
+    "scenario": "判定审查发现，同时新装的 degradation-gate 首次在本仓文档上实战。",
+    "reasoning": "审查 10 条 = 9 成立 / 1 部分 / 0 驳回（连续第二轮零驳回）。★ 最重的是成立 1 这个新形态：§9.2/§9.3/§9.4 自查**都抓到了**问题（语气肯定、sources 越界、代价栏重复），正文却都没改——前六次复发是「没看见」，这次是「看见了没动」，自查产出被当成合规装饰而非待办清单。⇒ 新增纪律：§9 每条自查发现必须标「已改 / 转 §11」二选一。★ degradation-gate 首秀抓我 3 条，判为误报（那三处是「标 `C-3`」「须先验 `C-4`」即把 ID 当指针用，正是在传播降级）⇒ 精化判据：反引号内 ID 视为指针不报，新增 F6/F7 用例。",
+    "outcome": "adjudication 落盘含 R1-R10；degradation_gate 判据精化 + selftest 7 用例全过；M7 样本 9 入账。",
+    "evidence": [
+      {"grade": "E1", "anchor": "docs/reviews/p012-pipeline-design.adjudication.md §2"},
+      {"grade": "E4", "anchor": "docs/reviews/p012-pipeline-design.adjudication.md §5"},
+      {"grade": "E1", "anchor": "scripts/degradation_gate.py#L70"}
+    ]
+  },
+  {
+    "step_id": "finalize",
+    "step_seq": 5,
+    "category": "progress_ruling",
+    "decision_maker": "Claude Opus 5",
+    "entities": ["spec/domain-sft-pipeline/DESIGN.md"],
+    "scenario": "成立项落档，且须验证「已改」是不是真改了。",
+    "reasoning": "R1-R10 逐条落实。⚠ 讽刺的是我在 §9.3 标「已改（v1.1）」后 §4.1 正文照旧——**第三次犯同一错，且是在修这个毛病的当口犯的**，经检查才补上 sources.yaml 的「候选清单不代选」限定（只消费 status: selected）。⇒ 证明「标已改」本身也需要被检查，不能自证。其余：[6] 整段阻塞 Q-1 明写、[4] 补 --base-size 并标阻塞 A-4、timeout 样本去向定义、参数带量纲（-sec / --max-samples）、代价改可数单位（返工段数而非周数，本仓纪律 no time estimates）。",
+    "outcome": "DESIGN v1.0→v1.1；§9.5 记独立 pass；P-012 done；可先行范围由「[1][2][3]」修正为「[1][3] + [2] 的两路验证器」。",
+    "evidence": [
+      {"grade": "E1", "anchor": "spec/domain-sft-pipeline/DESIGN.md §9.5"},
+      {"grade": "E1", "anchor": "spec/domain-sft-pipeline/DESIGN.md §4.1"},
+      {"grade": "E1", "anchor": "docs/PROGRESS.md#L33"}
+    ]
+  }
+]

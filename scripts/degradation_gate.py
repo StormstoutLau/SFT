@@ -74,9 +74,13 @@ def _entry_id(line: str) -> set:
 
 
 def _ids_of(line: str) -> set:
-    """结论区引用检测：行内任意位置出现的 ID。"""
+    """结论区引用检测：行内任意位置出现的 ID。
+    ★ 反引号内的 ID 视为**指针引用**（「标 `C-3`」「须先验 `C-4`」正是在传播降级），不报；
+      裸写的 ID 才是「拿未验结论当依据」。首版未区分 ⇒ 真实仓 3 条误报（P-012 实战首秀）。
+    """
+    stripped = re.sub(r"`[^`]*`", "", line)   # 去掉行内代码跨度后再取 ID
     out = set()
-    for m in ID_RE.finditer(line):
+    for m in ID_RE.finditer(stripped):
         tok = m.group(1)
         if any(tok.startswith(x) for x in ID_BLACKLIST_PREFIX):
             continue
@@ -181,6 +185,12 @@ def selftest() -> int:
     # 批次号噪声不得当靶
     noise = "# t\n## 3 发现\nB9 未验证\n## 4 结论\n本批为 P-010 收口\n"
     expect(check_file("t.md", noise) == [], "F5 P-010 等批次号不当靶")
+    # ★ 反引号指针引用不得当靶（P-012 实战首秀抓出的误报面）
+    ptr = "# t\n## 3 发现\n| B9 | 官方口径 | 未验证 |\n## 4 综合分析\n### 4.1 关键发现总结\n- 规模倾向标 `B9`，须先验 `B9`\n"
+    expect(check_file("t.md", ptr) == [], "F6 反引号内 ID = 指针引用（传播降级），不报")
+    # 反引号与裸写并存 ⇒ 裸写仍须报
+    mixed = "# t\n## 3 发现\n| B9 | 官方口径 | 未验证 |\n## 4 综合分析\n### 4.1 关键发现总结\n- 见 `B9`，且据 B9 得结论\n"
+    expect(len(check_file("t.md", mixed)) == 1, "F7 同行裸写 ID 仍报（反引号不豁免裸写）")
     return 0 if ok else 1
 
 
